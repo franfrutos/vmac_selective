@@ -1,0 +1,204 @@
+---
+title: What is the role of selective attention in the learning process of value-modulated attentional capture?
+subtitle: Public registration
+author:
+  - name: Francisco Garre-Frutos
+    orcid: 0000-0001-5052-066X
+    affiliation:
+      - ref: 1
+      - ref: 2
+    corresponding: false
+  - name: Miguel A. Vadillo
+    orcid: 0000-0001-8421-816X
+    affiliation:
+      - ref: 3
+  - name: Jan Theeuwes
+    orcid: 0000-0002-5849-7721
+    affiliation:
+      - ref: 4
+      - ref: 5
+  - name: Dirk Van Moorselaar
+    orcid: 0000-0002-0491-1317
+    affiliation:
+      - ref: 4
+  - name: Juan Lupiáñez
+    orcid: 0000-0001-6157-9894
+    affiliation:
+      - ref: 1
+      - ref: 2
+    corresponding: false
+affiliations:
+  - id: 1
+    name: Department of Experimental Psychology, University of Granada, Granada, Spain
+  - id: 2
+    name: Mind, Brain, and Behavior Research Center (CIMCYC), University of Granada, Granada, Spain
+  - id: 3
+    name: Department of Basic Psychology, Autonomous University of Madrid, Madrid, Spain
+  - id: 4
+    name: Institute Brain and Behavior Amsterdam, Department of Experimental and Applied Psychology, Vrije Universiteit Amsterdam, Amsterdam, the Netherlands
+  - id: 5
+    name: William James Center for Research, ISPA-Instituto Universitario, Lisbon, Portugal
+abstract: | 
+  Stimuli that reliably predict rewards can capture attention. Such value-modulated attentional capture (VMAC) has been proposed to be independent of current task goals, reflecting a Pavlovian learning process that relies on the learning history of pairings between stimuli and reward. Growing evidence suggests that explicit awareness of the stimulus-reward contingency during learning may be a necessary condition for the expression of VMAC, although the mechanisms underlying this relationship remain largely unexplored. The present study aims to test whether learning is just a consequence of selectively attending to the feature that predicts reward, regardless of explicit awareness. In particular, we plan to test whether VMAC can be learned spontaneously by performing a simple concurrent task that drives participants’ attention toward the reward-predictive feature, without explicit instructions about the stimulus-reward contingency. 
+keywords: 
+  - attention
+  - visual attention 
+  - selective attention
+  - attentional capture
+  - learning
+  - value
+date: "`r Sys.Date()`"
+citation:
+  container-title: "OpenScienceFramework"
+  doi: "osf.io/ezcrn/"
+branding: osf
+linkcolor: blue
+toc: true
+toc_depth: 2
+toc_title: "Contents"
+running-head: "The role of selective attention in VMAC"
+section-numbering: ""
+execute: 
+  freeze: true
+  cache: true
+  echo: false
+citeproc: true # typst bug: https://github.com/quarto-dev/quarto-cli/issues/10105
+bibliography: references.bib
+csl: _extensions/mvuorre/preprint/apa.csl
+format: 
+  preprint-typst: default
+---
+
+{{< pagebreak >}}
+
+```{r}
+#| echo: false
+#| output: false
+if (!require(pacman)) {
+  install.packages(pacman)
+  library(pacman)
+}
+p_load(here)
+
+source(here("Scripts/power_analysis.R"))
+```
+
+# Background
+
+When participants learn to associate a specific stimulus feature with reward, this stimulus often becomes a more powerful distractor in visual search tasks [@anderson2021; @failing2018]. The weight of the evidence suggests that the learning process behind this phenomenon is Pavlovian in nature, and thus, depends on the story of stimulus-reward pairings [@lepelley2016a]. One of the clearest demonstrations of this Pavlovian nature is the study conducted by @lepelley2015. They used a modified version of the additional singleton task [@theeuwes1992; @theeuwes1994], where participants searched for a target defined by one feature (shape) while a distractor with a unique color was presented in some trials. Critically, participants could earn rewards based on the color of the distractor—one color predicted a high reward, and the other predicted a low reward. When a high-reward singleton appeared as a distractor, response times (RTs) increased compared to when the low-reward singleton was presented. The effect was termed value-modulated attentional capture (VMAC).
+
+Most of the studies in the literature suggest that VMAC is an automatic phenomenon. For instance, in @lepelley2015 VMAC emerged in conditions where the associated feature never required a response, and where attending to the high-reward singleton hindered performance. In other words, participants attend more to the high-reward singleton even when it results in less reward. This attentional capture has also been observed with oculomotor measures [@lepelley2015; @pearson2016; @theeuwes2012], where participants look to the high-reward singleton even when it results in the omission of reward. At the same time, the learning process underlying VMAC shows features typically associated with non-automatic processes. For instance, in a recent study from our lab, we showed that explicit instructions regarding color-reward contingency modulated VMAC, and individual differences in explicit awareness of such relationship were associated with the learning trajectory of VMAC throughout the task [@garre-frutos2024b]. Although the previous findings may seem contradictory, it is known that human Pavlovian learning is sensible to manipulations of explicit awareness or verbal instructions [@lovibond2002]. Some theoretical models suggest that Pavlovian learning could be entirely propositional [@mitchell2009]. Under this assumption, explicit awareness would be a necessary condition in the learning process of VMAC.
+
+An alternative, and possibly more parsimonious, explanation relates to how participants attend features associated with reward. For instance, research on other paradigms suggests that implicit learning often depends on selective attention [@jiménez1999; @vadillo2020; @jiang2001]. In the paradigm developed by Le Pelley et al. (2015), distractors in the additional singleton task capture attention in a bottom-up way; however, participants did not need to selectively attend to color because it was never a task-relevant feature. It could be that the explicit instructions about stimulus-reward contingency drove participants' attention toward the reward-associated feature, which could be necessary and sufficient for learning to occur. If selective attention is necessary, one would expect that VMAC will be facilitated by any manipulation that forces participants to pay attention to the reward-associated feature even if participants are unaware of the specific relation.
+
+# The present study
+
+In light of the above, the present study was designed to test the causal role of selective attention in the learning process underlying VMAC. To that aim, we will use the same procedure as @garre-frutos2024b. Instead of manipulating the information given to participants, we will use a concurrent task designed to force participants to selectively attend to different dimensions of the singleton distractor. We will manipulate between groups whether participants have to report either the color or the location of the singleton distractor [as in @gao2020]. With this design, it is possible to compare selective attention specifically to the reward-associated feature, vs. an irrelevant feature.
+
+# Hypothesis
+
+We hypothesize that learning the feature-reward association depends on selectively attending to the feature associated with the reward. If this is the case, we expect that only participants selectively attending to color will show a significant VMAC effect compared, to participants attending to the distractor location. Specifically, we expect:
+
+-   H1: To replicate previous findings with the additional singleton task regarding attentional capture. That is, both groups will show higher RTs when a singleton distractor is presented in the search display compared to when it is absent.
+
+-   H2:
+
+    -   H2~1~: The VMAC effect (Higher RTs when a high-value distractor is presented compared to a low-value distractor) will be significantly higher for the color than the location group.
+
+    -   H2~2~: We will observe the VMAC effect only in participants who selectively attend to color.
+
+-   H3: Between-group differences VMAC (H2) would not be explained by differences in awareness[^1].
+
+[^1]: Note that this hypothesis is necessary for the correct interpretation of H2. In Garre-Frutos et al. (2024b), participants who were not informed about the reward schedule showed significantly lower awareness than participants who were instructed. Although this result suggests that participants ignore the colors through the task when they are not explicitly informed, we raise the possibility that the concurrent task could enhance participants' awareness. Specifically, asking about the color could elicit selective attention, and selective attention could potentially elicit awareness. Thus, if we find evidence for H2, the interpretation of H2 depends on H3.
+
+In summary, we expect that the type of concurrent task will modulate VMAC and that the differences in VMAC will not be explained away by differences in awareness [as in @garre-frutos2024b].
+
+# Sample size rationale
+
+To calculate the required sample size for the proposed study, we based our power analysis on Experiment 2 of @garre-frutos2024b. In that study, the critical test was the interaction between Group (instructions, no instructions) and Type of distractor (high, low-value). As our present study relies on a similar design, we estimate our sample size based on their data. Specifically, we simulated new data based on the linear mixed model (LMM) fitted in Experiment 2 of Garre-Frutos et al. (2024b). To increase power, we made two decisions based on empirical findings in the literature and our hypothesis. First, as the VMAC effect increases over blocks of trials, we decided to eliminate the first 48 trials of the calculation of VMAC, where is unlikely to be expressed [see @garre-frutos2024a]. Second, as we have a directional hypothesis for the critical test (H2~1~), we will employ a one-sided test for the critical interaction between Group and Type of distractor.
+
+To visualize the expected pattern of results, in Figure 1 we represent 80 simulated participants per group from the fitted model. As explained above, we expected a significant modulation of VMAC depending on the demands of the concurrent task (H2~1~), with a larger VMAC effect for participants attending to the distractor color than for those attending the distractor location.
+
+```{r}
+#| label: fig-1
+#| fig-cap: 80 simulated participants per group based on the statistical model used in the simulation-based power analysis. 
+#| fig-height: 3.2
+#| fig-width: 5
+#| echo: false
+
+pred_plot
+```
+
+Given this model, we simulated data for a varying number of participants per group, and in each simulation, we fitted LMM as described in the Statistical Analysis section. For each fitted model, we tested the critical interaction described above. The results of this simulation are shown in Figure 2. The simulation shows that to have at least 80% power to detect the effect, we would need a minimum sample size of 70 participants per group (*N* = 140).
+
+```{r}
+#| label: fig-2
+#| fig-cap: Power curve. Points denote the percentage of significant results for each sample size. Shaded areas represent the binomial CIs for the observed statistical power based on 1000 simulations.
+#| fig-height: 3.2
+#| fig-width: 5
+#| echo: false
+
+plot_power
+```
+
+Based on our power analysis, we plan to recruit at least 160 participants (80 per group) from the University of Granada, the Autonomous University of Madrid, and the Vrije University of Amsterdam. We will exclude participants with an accuracy below 70% in the visual search task or those who do not perform above chance level on a binomial test for the concurrent task[^2]. We will also remove participants whose mean RTs are above or below 3 SDs from the group mean and participants with an accuracy below 2.5 SDs in the concurrent task. If exclusions leave fewer than 70 participants in any group, we will continue to collect participants until we reach 70 participants per group. If the characteristics of the data force us to exclude participants based on other criteria, we will explicitly report these exclusions as not preregistered.
+
+[^2]: As described below, participants in the visual search task will complete 288 trials, of which they will only need to report the location or color of the distractor in 12 to 24 trials (randomly between participants). Rather than setting a fixed accuracy cutoff, we will include only those participants performing above chance level in the concurrent task. This threshold will be determined using a binomial test with a probability of 0.5. For example, a participant who completes 12 trials in the concurrent task will need at least 10 correct responses ($p = 0.036$) to meet the threshold, while a participant with 18 trials will require at least 14 correct responses ($p = 0.031$). Thus, the accuracy cutoff will vary between 75% and 83%, depending on the number of trials each participant performs.
+
+# Methods
+
+## Stimuli, Materials, and Procedure
+
+The materials and procedure of this experiment will be based on Garre-Frutos et al. (2024b). The study will be conducted online, consistent with a large body of research using this task [@albertella2019; @albertella2020; @lepelley2022; @liu2021; @garre-frutos2024a; @garre-frutos2024b; @watson2020]. To control for differences in participants' distance from the screen, we will scale stimulus size to screen distance using the virtual chinrest developed by @li2020. Before starting the main task, participants will undergo a calibration procedure to estimate their screen distance. They will adjust the size of a rectangle on their screen to match a standard-sized object (e.g., a credit card or driver's license). Then, they will perform a blind spot measurement by covering their right eye and focusing their left eye on a central placeholder while a red circle moves leftward, pressing the spacebar when the circle disappears. This process will be repeated five times, and the average will be used to estimate screen distance.
+
+The task will be programmed in jsPsych [@leeuw2023] and hosted on JATOS [@lange2015]. A graphical representation of the procedure is presented in Figure 3. Each trial will start with a central fixation cross, followed by a search display containing six shapes (2.3° × 2.3° visual angle) arranged evenly around an imaginary circle with a diameter of 10.1°. The target will be a diamond-shaped stimulus containing a line segment oriented either horizontally or vertically, and the non-targets will be five circles each containing a line segment tilted 45° to the left or right. In most trials, one of the circles will be colored (either high-reward or low-reward color), while the remaining shapes will be gray. Participants will be randomly assigned to one of two color pair conditions (blue and orange or green and pink), with the high- and low-reward colors randomly assigned within each pair. The positions of the target and distractor will vary randomly in each trial.
+
+```{r}
+#| label: fig-3
+#| fig-cap: Schematic representation of the task.
+#| fig-width: 12
+#| fig-height: 10
+#|# out-width: 48%
+knitr::include_graphics("figure_3.png")
+```
+
+Participants will be instructed to find and report the orientation of the line segment inside the diamond as quickly as possible by pressing 'B' for horizontal or 'J' for vertical. Each block will consist of 48 trials, including 20 high-value singleton trials (distractor in high-reward color), 20 low-value singleton trials (distractor in low-reward color), and 8 absent singleton trials (all shapes are gray). Participants will earn 0.1 points for every millisecond their RT is below 1000 ms in low-reward-distractor trials. The number of points earned will be multiplied by 10 in high-reward-distractor trials. No points will be earned for RTs exceeding 1000 ms, and incorrect responses will result in a loss of points equivalent to the potential gain for that trial. The search display will remain on screen until the participant responds or 2000 ms has elapsed. Feedback will be displayed for 700 ms, indicating points won or lost, and the inter-trial interval will be 1200 ms.
+
+Occasionally, participants will encounter report trials, indicated by an "R" displayed immediately after the feedback display. Instructions will specify that upon seeing this "R," participants must report the location or color of the distractor based on their assigned group (report location or report color). Report trials will occur infrequently and randomly, following restrictions to ensure each block of 48 trials contains only two to four report trials, with at least one appearing in the first half and one in the latter part of each block. Report trials will be restricted to distractor-present trials. After displaying the "R" for 1000 ms, a report screen will prompt participants to recall either the side (left or right) of the search display where the distractor appeared (report location group) or the distractor’s reward color (high or low-value color; report color group). In both groups, participants will press "C" or "M" to report the location or color of the distractor. Correct responses in the report task will earn 2000 points, while incorrect responses will lose 2000 points, with feedback on performance provided at the end of each block.
+
+After the calibration phase, participants will first complete 20 practice trials without any singleton distractor to familiarize themself with the task. Then, they will perform 10 trials with both the visual search task and the report task (after every trial). In this practice stage, the search display will be presented for 10 seconds. After this, participants will perform 20 additional trials at normal speed. Subsequently, they will enter the visual search task, where instructions will emphasize that faster and correct responses result in more points, while incorrect responses result in point losses. Importantly, they will not be informed about the association between the distractor color and reward value. Participants will be reminded about the role of the distractor concerning the report task only.
+
+Upon completing the experiment, participants will undergo an awareness test to evaluate their knowledge of the color-reward contingencies. They will be instructed to respond based on their impressions during the task, avoiding post-hoc interpretations. First, participants will rate, using a Visual Analog Scale (VAS), the extent to which they believe distractor color influenced the likelihood of bonus trials, with the scale ranging from 0 (“I don’t believe color made any difference”) to 100 (“I believe color entirely determined bonus trial likelihood”). They will then use a second VAS scale to estimate the relative proportion of bonus trials associated with each color, with each end of the scale labeled to indicate the likelihood for each color singleton. Participants will adjust a dot along the VAS to represent their estimated likelihood, which will update the displayed percentages accordingly (e.g., a position closer to the high-value color might show a 70% likelihood for the high-value distractor and 30% for the low-value singleton). After providing these ratings, participants will indicate their confidence by adjusting a dot on a confidence VAS, ranging from 0 (“no confidence”) to 100 (“very confident”). Finally, participants will have the opportunity to provide a free-form qualitative description of any patterns they noticed in the likelihood of bonus trials; this response will be collected only for exploratory purposes.
+
+# Statistical analysis
+
+Here we describe the analysis plan for the present study. Unless otherwise noted, all statistical tests will be two-tailed with the conventional level of $\alpha = 0.05$.
+
+## Visual search task
+
+The main dependent variable will be RTs. We will analyze the data from the main task using a strategy similar to Garre-Frutos et al. (2024a). We will remove RTs considered outliers (below 150 ms or above 1800 ms) and, according to our power analysis, we will remove data from the first block of trials. Log-transformed RTs will be analyzed using an LMM including predictors Singleton (high-value, low-value, and absent distractor), Group (color, location), and their interaction. While Group will be coded using deviation coding, we will use repeated contrasts for Singleton, with one contrast for the high-value vs. low-value conditions (VMAC effect) and another for the low-value vs. absent conditions (Attentional Capture effect). This strategy will allow us to test specific hypotheses regarding each theoretically relevant contrast [@schad2020][^3]. We will test for significance using the above criteria. The only exception will be the interaction between Group and the VMAC effect, where we will use a one-sided contrast that reflects our directional hypothesis (H2~1~). If we observe a significant Group \* VMAC interaction, we will compute the conditional VMAC effect for each group. Following hypothesis H2~2~, we will use a one-sided contrast in favor of a larger VMAC effect only for the color group (two-sided for the location group). Finally, regarding the random effect structure of the LMM, we will first fit the maximum random effect structure followed by our design [@barr2013]. If we encounter convergence problems or singular fits, we will reduce the random effect structure [@bates2015; @matuschek2017]. Finally, because between-group comparisons are attenuated by measurement error [@karvelis], we will calculate the split-half reliability [@parsons2021] of the VMAC effect for each group to inform for possible attenuation in the critical between-group comparison.
+
+[^3]: Specifically, the fixed effect structure of the proposed LMM will have five coefficients: a coefficient for Group predictor, two coefficients for the Singleton predictor (high-value vs. low-values and low-value vs. absent singleton), and two coefficients for the interactions between Group and each coefficient of Singleton. This will allow us to test specific hypotheses instead of performing an omnibus test with no theoretical relevance for the present study.
+
+Although we have no theoretical interest in task accuracy [which is usually near the ceiling in other studies using a similar task\; @garre-frutos2024a; @garre-frutos2024b; @watson2019], accuracy will be analyzed to rule out a speed-accuracy tradeoff. The analysis will follow a similar approach to RTs, using a generalized LMM with binomial probability and a logit link [@jaeger2008]. The fitted model will have the same fixed effects structure as the LMM for RTs described above, with the same strategy for selecting the random effects structure.
+
+## Report task
+
+As described above, we will only include participants who performed the concurrent task significantly above chance. Again, even if we have no predictions regarding this task, we will compare whether there are differences between groups in task accuracy. For that aim, we will fit a GLMM for the secondary task, with a Group predictor and a by-participant random intercept.
+
+## Awareness tests
+
+Participants will report, using two Visual Analog Scales (VAS, coded from 0 to 100), their belief that the probability of a bonus trial depended on distractor color, followed by their estimate of the relative likelihood of receiving a bonus trial based on distractor color. Since both measures are bounded between 0 and 100, we will use beta regression [@smithson2006][^4], which is appropriate for modeling data within fixed bounds. A group predictor will be included to test for mean differences across groups on each VAS scale.
+
+[^4]: As discussed by @smithson2006, beta regression assumes known boundaries in the dependent variable but cannot model responses at those exact boundaries. Following their recommendation, we will apply a scaling transformation to avoid boundary values: $y' = [y' \cdot (N - 1) + 1/2] / N$.
+
+Each VAS response will include an accompanying confidence rating to assess participants' metacognitive ability in evaluating their responses. To examine the validity of these measures as indicators of explicit awareness of the feature-reward contingency, we will separately fit the beta regression models for each group, incorporating confidence ratings as predictors. A positive relationship between confidence and performance on the awareness measures would support their validity. Additionally, to evaluate whether the first awareness question serves as a predictor of the second, we will employ the same beta regression approach.
+
+As described above, interpreting H2 as the causal effect of selective attention on learning requires no between-group differences in awareness (H3). If we find evidence for H2 but also find significant differences in awareness, we will test whether controlling for these individual differences would also eliminate the interaction between group and VMAC. In other words, we will include the awareness response as an additional predictor in the model. If we still find a significant interaction, we can still interpret the previous interaction as the causal effect of selective attention independent of awareness. To simplify this model, we will exclude absent trials from this analysis.
+
+Since we have two measures of awareness, if these measures have convergent validity (e.g., the first is a good predictor of the second), we will use the second measure as a covariate (which is more similar to the measure employed by Garre-Frutos et al., 2024b). In any case, we will include both awareness measures as predictors in the model.
+
+# References
+
+::: {#refs}
+:::
