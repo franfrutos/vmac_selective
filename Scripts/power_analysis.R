@@ -47,7 +47,7 @@ summary(fit) # Model used for simulation
 
 
 # Power-analysis based on previous study ----
-# VMAC main effect and VMAC x Block x Group interaction
+# VMAC main effect and VMAC x Group interaction
 # If the file with the power analysis result is detected, do not run power analysis
 if (!file.exists(here("Output/powerVMAC.rds"))) {
   # Setting simulation params
