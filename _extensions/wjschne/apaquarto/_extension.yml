@@ -1,6 +1,6 @@
 title: My Document in APA Style, Seventh Edition
 author: W. Joel Schneider
-version: 4.3.2
+version: 4.4.1
 quarto-required: ">=1.4.549"
 contributes:
   formats:
@@ -16,6 +16,8 @@ contributes:
       toc: false
       fig-width: 6.5
       fig-height: 6.5
+      crossref:
+        subref-labels: alpha A
       suppress-title-page: false
       suppress-title-page-number: false
       suppress-title: false
@@ -37,6 +39,7 @@ contributes:
       suppress-corresponding-postal-code: false
       suppress-corresponding-email: false
       suppress-abstract: false
+      suppress-impact-statement: false
       suppress-keywords: false
       suppress-title-introduction: false
       no-ampersand-parenthetical: false
@@ -50,10 +53,13 @@ contributes:
         title-block-author-note: "Author Note"
         title-block-correspondence-note: "Correspondence concerning this article should be addressed to"
         title-block-role-introduction: "Author roles were classified using the Contributor Role Taxonomy (CRediT; https://credit.niso.org/) as follows:"
+        title-impact-statement: "Impact Statement"
         references-meta-analysis: "Las referencias marcadas con un asterisco indican estudios incluidos en el metanálisis."
       filters:
         - at: pre-ast
           path: apalanguage.lua
+        - at: pre-ast
+          path: markdowntable.lua
         - at: pre-ast
           path: crossrefprefix.lua
         - at: pre-ast
@@ -111,11 +117,11 @@ contributes:
       anchor-sections: false
       fig-cap-location: top
       html-math-method: katex
+      mainfont: Times, Times New Roman, serif
       grid: 
         body-width: "7in"
       css: apa.css
       theme: 
-        - litera
         - apa.scss
       template-partials:
         - title-block.html

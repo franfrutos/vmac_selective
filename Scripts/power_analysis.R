@@ -1,7 +1,6 @@
 # Author: Francisco Garre-Frutos
-# Date: 20/06/2024
 
-# Power analysis from Garre-Frutos et al. (2024)
+# Power analysis from Garre-Frutos et al. (2025)
 
 # Set random seed:
 set.seed(666)
@@ -16,9 +15,9 @@ p_load(here, dplyr, readr, lme4, lmerTest, hypr, simr, pbapply, future, parallel
 
 source(here("Scripts/functions.R")) # Load data and all relevant functions
 
-# Loading raw data from Garre-Frutos et al. (2024b) from github repo
+# Loading raw data from Garre-Frutos et al. (2025) from github repo
 dlist <- list(
-  "exp2" = read_csv("https://raw.githubusercontent.com/franfrutos/VMAC_awareness/main/Input/experiment_2.csv")[,-1]
+  "exp2" = read_csv("https://raw.githubusercontent.com/franfrutos/VMAC_awareness/refs/heads/main/Input/data/experiment_2.csv")[,-1]
 )
 
 d <- filter_data(dlist[["exp2"]], f.absent = F,

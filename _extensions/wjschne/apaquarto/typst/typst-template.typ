@@ -42,8 +42,8 @@
 ) = {
 
   set page(
-    paper: paper,
     margin: margin,
+    paper: paper,
     header-ascent: 50%,
     header: grid(
       columns: (9fr, 1fr),
@@ -89,9 +89,9 @@ if sys.version.at(1) >= 11 or sys.version.at(0) > 0 {
   // format figure captions
   show figure.where(kind: "quarto-float-fig"): it => [
     #if int(appendixcounter.display().at(0)) > 0 [
-      #heading(level: 2)[#it.supplement #appendixcounter.display("A")#it.counter.display()]
+      #heading(level: 2, outlined: false)[#it.supplement #appendixcounter.display("A")#it.counter.display()]
     ] else [
-      #heading(level: 2)[#it.supplement #it.counter.display()]
+      #heading(level: 2, outlined: false)[#it.supplement #it.counter.display()]
     ]
     #par[#emph[#it.caption.body]]
     #align(center)[#it.body]
@@ -100,9 +100,9 @@ if sys.version.at(1) >= 11 or sys.version.at(0) > 0 {
   // format table captions
   show figure.where(kind: "quarto-float-tbl"): it => [
     #if int(appendixcounter.display().at(0)) > 0 [
-      #heading(level: 2)[#it.supplement #appendixcounter.display("A")#it.counter.display()]
+      #heading(level: 2, outlined: false)[#it.supplement #appendixcounter.display("A")#it.counter.display()]
     ] else [
-      #heading(level: 2)[#it.supplement #it.counter.display()]
+      #heading(level: 2, outlined: false)[#it.supplement #it.counter.display()]
     ]
     #par[#emph[#it.caption.body]]
     #block[#it.body]
@@ -158,3 +158,4 @@ if sys.version.at(1) >= 11 or sys.version.at(0) > 0 {
 
 
 }
+
