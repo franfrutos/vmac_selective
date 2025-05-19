@@ -1,5 +1,5 @@
 \documentclass[
-  jou,
+  man,
   floatsintext,
   longtable,
   nolmodern,
@@ -245,11 +245,11 @@ Moorselaar}{0000-0002-0491-1317}}\par{\addORCIDlink{Juan
 Lupiáñez}{0000-0001-6157-9894}} 
 
 \par{Hypothesis, design and data analysis for the present study were
-preregistered before data collection at \url{https://osf.io/f3bm8} All
-data and analysis scripts are aviable at:
-\url{https://osf.io/ezcrn}  The authors have no conflicts of interest to
-disclose. This study was supported by the Ministerio de Ciencia,
-Innovación y Universidades: Grants PID2023-148421NB-I00 and
+preregistered before data collection at \url{https://osf.io/f3bm8} and
+\url{https://osf.io/f3bm8}. All data and analysis scripts are aviable
+at: \url{https://osf.io/ezcrn}  The authors have no conflicts of
+interest to disclose. This study was supported by the Ministerio de
+Ciencia, Innovación y Universidades: Grants PID2023-148421NB-I00 and
 PID2023-150830NB-I00, funded by MICIU/AEI/10.13039/501100011033 and
 FEDER, UE; CEX2023-001312-M funded by MICIU/AEI/10.13039/501100011033
 and UCE-PP2023-11 funded by the University of Granada and an FPU
@@ -277,46 +277,13 @@ to Francisco
 Garre-Frutos, Email: \href{mailto:fgfrutos@ugr.es}{fgfrutos@ugr.es}}
 }
 
-\usepackage{pbalance} 
-\usepackage{float}
 \makeatletter
-\let\oldtpt\ThreePartTable
-\let\endoldtpt\endThreePartTable
-\def\ThreePartTable{\@ifnextchar[\ThreePartTable@i \ThreePartTable@ii}
-\def\ThreePartTable@i[#1]{\begin{figure}[!htbp]
-\onecolumn
-\begin{minipage}{0.5\textwidth}
-\oldtpt[#1]
-}
-\def\ThreePartTable@ii{\begin{figure}[!htbp]
-\onecolumn
-\begin{minipage}{0.5\textwidth}
-\oldtpt
-}
-\def\endThreePartTable{
-\endoldtpt
-\end{minipage}
-\twocolumn
-\end{figure}}
-\makeatother
-
-
-\makeatletter
-\let\endoldlt\endlongtable		
+\let\endoldlt\endlongtable
 \def\endlongtable{
 \hline
-\endoldlt}
+\endoldlt
+}
 \makeatother
-
-\newenvironment{twocolumntable}% environment name
-{% begin code
-\begin{table*}[!htbp]%
-\onecolumn%
-}%
-{%
-\twocolumn%
-\end{table*}%
-}% end code
 
 \urlstyle{same}
 
@@ -496,59 +463,60 @@ relationship between awareness and VMAC.
 
 \section{Methods}\label{methods}
 
-This study followed the principles of the Declaration of Helsinki.
-Approval was granted by the Ethics Committee at the University of
-Granada (ref. 2442/CEIH/2021).
+The study was approved by the Ethics Committee at the University of
+Granada (2442/CEIH/2021) and adhered to the Declaration of Helsinki
 
 \subsection{Transparency and openness}\label{transparency-and-openness}
 
-The experiment reported in the present Observation complies with the TOP
-guidelines. All materials, data, and scripts are publicly available at
-the Open Science Framework (\url{https://osf.io/ezcrn}). The methods and
-analysis were preregistered before any data collection took place. The
-registered protocols are publicly available at
-\url{https://osf.io/f3bm8}. The method sections in the present article
-merely paraphrase the information provided in the preregistation. The
-data were collected in December 2024.
+This experiment complies with the TOP guidelines. All materials, data,
+and scripts are publicly available at
+\href{https://osf.io/ezcrn}{https://osf.io/eczrn} and
+\url{https://github.com/franfrutos/vmac_selective}, and the
+preregistered methods and analyses (\url{https://osf.io/f3bm8}) were
+registered before data collection in December 2024. Data were analyzed
+using R, version 4.3.1 (\citeproc{ref-r_ref}{R Core Team,
+2023})\footnote{R packages: \emph{lme4} (\citeproc{ref-lme4}{Bates et
+  al., 2015}), \emph{betareg} (\citeproc{ref-betareg}{Cribari-Neto \&
+  Zeileis, 2010}) and \emph{tidyverse} (\citeproc{ref-tidyverse}{Wickham
+  et al., 2019}).}. We report how we determined our sample size, data
+exclusions, manipulations, and measures in the study.
 
 \subsection{Participants}\label{participants}
 
-Based on a preregistered power analysis, we aimed to recruit at least
-140 participants (70 per group), but we collected data from 160
-participants,bearing in mind our preregistered exclusion criteria. From
-those participants, we excluded seven participants with exceptionally
-low accuracy (\textless70\% or mean RTs \(\pm\) 3SDs) or poor
-performance in the reporting task described below\footnote{We included
-  only those participants performing significantly above chance level
-  (determined by a binomial test at \(p = 0.5\)).}. Our final sample
-consisted on 153 participants (\(n_{color} = 77\);
-\(n_{location} = 76\); 117 self-reported as female; \(M_{age} = 21.4\),
-\(SD_{age} = 4.2\)).
+We performed a simulation-based power analysis (fully reported at
+\url{https://osf.io/f3bm8}) for the critical Group (color vs.~location)
+× Distractor (high- vs.~low-value) interaction, based on a similar
+effect from the linear mixed model (LMM) in Garre-Frutos, Lupiáñez, et
+al. (\citeproc{ref-garre-frutos2025a}{2025}) (effect size:
+\(\beta = 0.018\)), excluding trials from the first 48 trials where VMAC
+is typically not observed (\citeproc{ref-garre-frutos2024}{Garre-Frutos
+et al., 2024}; \citeproc{ref-garre-frutos2025a}{Garre-Frutos, Lupiáñez,
+et al., 2025}). Power was estimated using R (version 4.3.1;
+\citeproc{ref-r_ref}{R Core Team, 2023}) and the \emph{simr} package
+(\citeproc{ref-simr}{Green \& MacLeod, 2016}). Simulations indicated
+that 70 participants per group would yield 84.2\% power (α = .05). To
+account for exclusions, we collected data from 80 participants per
+group. Seven participants were excluded due to low accuracy
+(\textless70\%), RTs deviating ±3 SDs from the group mean, or poor
+performance in the reporting task\footnote{As preregistered, only
+  participants performing above chance were included.}. The final sample
+included 153 participants (\(n_{\text{color}} = 77\),
+\(n_{\text{location}} = 76\); 117 self-identified as women;
+\(M_{\text{age}} = 21.4\), \(SD = 4.2\)).
 
 \subsection{Design and procedure}\label{design-and-procedure}
 
 Participants completed an online version of the additional singleton
-task (\citeproc{ref-garre-frutos2024}{Garre-Frutos et al., 2024};
-\citeproc{ref-garre-frutos2025a}{Garre-Frutos, Lupiáñez, et al., 2025})
-in which they searched for a diamond target among circle distractors.
-The target always contained a horizontally or vertically oriented line
-segment, while each circle contained a line segment tilted by 45
-degrees. On most trials, one of these circles appeared in a uniquely
-colored singleton distractor (orange and blue or pink and green,
-counterbalanced across participants), which could be either a high- or a
-low-value color. Participants were instructed to locate and report the
-orientation of the line segment within the diamond as quickly as
-possible by pressing the \textless b\textgreater{} key for horizontal or
-the \textless j\textgreater{} key for vertical.
-
-Participants received 0.1 points for every millisecond that their RTs
-were below 1000 ms on low-value distractor trials. On high-value trials,
-points were multiplied by 10. No points were awarded for responses with
-RTs greater than 1000 ms, and errors resulted in the loss of the same
-number of points that would have been earned. Critically, participants
-were not informed of the relationship between color and reward. The task
-consisted of six blocks of 48 trials (20 high- and low-value trials
-each, and 8 distractor-absent trials).
+task (\citeproc{ref-garre-frutos2024}{Garre-Frutos et al., 2024}), in
+which they searched for a diamond target among circle distractors. The
+target always contained a horizontally or vertically oriented line
+segment, while each circle contained a segment tilted by 45 degrees. On
+most trials, one of the circles appeared in a uniquely colored singleton
+distractor (orange and blue or pink and green, counterbalanced across
+participants), which could be either a high- or low-value color.
+Participants were instructed to locate and report the orientation of the
+line segment within the diamond as quickly as possible by pressing the
+key for horizontal or the key for vertical.
 
 \begin{figure}[h]
 
@@ -567,67 +535,53 @@ Spanish.}
 
 \end{figure}
 
-Participants were randomly assigned to one of two groups, and each group
-was required to perform a brief secondary task that occurred
-pseudorandomly at the end of selected trials. One group reported the
-color of the singleton distractor presented in the previous trial, while
-the other group reported its location, indicating whether it appeared on
-the left or right side of the display (Figure 1). Participants were
-informed that the letter ``R'' would occasionally appear on the display
-after the reward feedback, indicating that they had to report either the
-color or the location of the distractor, depending on their assigned
-group, using the \textless c\textgreater{} and \textless m\textgreater{}
-keys to indicate left or right. To integrate the reporting task with the
-visual search task, correct responses in the reporting task were worth
-2000 points, while incorrect responses resulted in the loss of the same
-number of points. However, feedback on performance on these trials was
-provided only at the end of each block. Participants encountered either
-two or four report trials per block, with at least one in the first half
-and one in the second half of the block.
+Participants received 0.1 points for every millisecond their RTs were
+below 1000 ms on low-value distractor trials. On high-value trials,
+points were multiplied by 10. No points were awarded for RTs above 1000
+ms, and errors resulted in the loss of the same number of points.
+Critically, participants were not informed of the relationship between
+color and reward. The task consisted of six blocks of 48 trials (20
+high- and low-value trials each, and 8 distractor-absent trials).
+
+Participants were randomly assigned to one of two groups, each required
+to perform a brief secondary task that occurred pseudorandomly at the
+end of selected trials. One group reported the color of the singleton
+distractor from the previous trial, while the other reported its
+location, indicating whether it appeared on the left or right side of
+the display (Fig. 1). Participants were informed that the letter ``R''
+would occasionally appear on the display after reward feedback,
+indicating that they had to report either the color or the location of
+the distractor, depending on their assigned group, using the and keys to
+indicate left or right. To integrate the reporting task with the visual
+search task, correct responses were worth 2000 points, while incorrect
+responses resulted in the loss of the same number of points. Feedback on
+these trials was provided only at the end of each block. Participants
+encountered two or four report trials per block, with at least one in
+each half.
 
 At the end of the experiment, participants completed an awareness test
 to assess their knowledge of the color-reward contingencies using a
 Visual Analog Scale (VAS; \citeproc{ref-Reips2008}{Reips \& Funke,
-2008}). First, they rated the extent to which they believed that the
-color of the distractor influenced the likelihood of ``bonus trials''
-(\emph{contingency belief}), on a scale from 0 (``I don't believe color
-makes any difference'') to 100 (``I believe color completely determines
-the likelihood of bonus trials''). They then estimated the relative
-proportion of bonus trials associated with each color (\emph{contingency
-awareness}). To do this, they were presented with another VAS showing
-the high- and low-rated distractors with endpoints indicating the
-percentage of bonus trials estimated to be associated with each color.
-After providing these ratings, participants indicated their confidence
-in each answer using a confidence VAS ranging from 0 (``no confidence'')
-to 100 (``very confident'').
-
-\begin{figure*}[h]
-
-{\caption{{Summary of results}{\label{fig-2}}}}
-
-\pandocbounded{\includegraphics[keepaspectratio]{Output/plots/fig2.pdf}}
-
-{\noindent \emph{Note.} \textbf{A}) Mean RTs in the visual search task.
-Bars and dots show condition means; error bars indicate within-subject
-95\% CIs (\citeproc{ref-morey2008}{Morey, 2008}). \textbf{B}) Beta
-regression predictions for awareness results. Transparent dots are
-individual responses; lines and shaded areas show model predictions and
-95\% CIs. \textbf{C}) RT analysis with contingency awareness as
-covariate. Transparent dots show individual VMAC scores; lines and
-shaded areas depict model predictions by task and awareness level.
-Solid, large dots and error bars show group means and 95\% CIs. Note
-that only the group attending to color showed a positive VMAC effect
-(blue dot), but the effect was independent of contingency awareness.}
-
-\end{figure*}
+2008}). First, they rated the extent to which they believed the
+distractor color influenced the likelihood of ``bonus trials''
+(contingency belief), on a scale from 0 (``I don't believe color makes
+any difference'') to 100 (``I believe color completely determines the
+likelihood of bonus trials''). They then estimated the relative
+proportion of bonus trials associated with each color (contingency
+awareness). To do this, they were presented with another VAS showing the
+high- and low-rated distractors with endpoints indicating the percentage
+of bonus trials estimated to be associated with each color. After
+providing these ratings, participants indicated their confidence in each
+answer using a confidence VAS ranging from 0 (``no confidence'') to 100
+(``very confident'').
 
 \section{Results}\label{results}
 
-All the analyses reported in this section follow our preregistered
-analysis plan (\url{https://osf.io/f3bm8}). We excluded incorrect
-responses (5.53\%), outliers (RTs \textless{} 150 or \textgreater{} 1800
-ms; 0.57\%), and all trials from the first block of the visual search
-task.
+All the analyses reported follow our preregistered analysis plan
+(\url{https://osf.io/f3bm8}). Following preregistration, we excluded
+incorrect responses (5.53\%), anticipations and timeouts (RTs
+\textless{} 150 or \textgreater{} 1800 ms; 0.57\%), and all trials from
+the first block of the visual search task (as explained above).
 
 \subsection{Report task}\label{report-task}
 
@@ -640,14 +594,14 @@ suggesting that participants performed well on the secondary task.
 
 \subsection{Visual search task}\label{visual-search-task}
 
-We analyzed log-transformed RTs using linear mixed models that included
-two predictors of theoretical interest: value-modulated attentional
-capture (VMAC: high- vs.~low-value distractor) and attentional capture
-(AC: low-value vs.~absent distractor), along with a Group predictor
-(color vs.~location report task). As preregistered and following our
-hypothesis, all contrasts were two-tailed except for the VMAC × Group
-interaction, for which we used a one-tailed test in the direction of a
-larger VMAC effect in the color group.
+We analyzed log-transformed RTs using LMMs that included two predictors
+of theoretical interest: value-modulated attentional capture (VMAC:
+high- vs.~low-value distractor) and attentional capture (AC: low-value
+vs.~absent distractor), along with a Group predictor (color vs.~location
+report task). As preregistered and following our hypothesis, all
+contrasts were two-tailed except for the VMAC × Group interaction, for
+which we used a one-tailed test in the direction of a larger VMAC effect
+in the color group.
 
 RT analyses showed significant effects of both AC and VMAC
 (\(\beta_{\mathrm{VMAC}} = 0.008, \; t_{151} = 2.57, \; p = 0.011\);
@@ -666,10 +620,10 @@ group (\(M_{\mathrm{VMAC}} = 10.4,\;95\%\,\mathrm{CI}[4.0, 16.8]\)) but
 not in the location group
 (\(M_{\mathrm{VMAC}} = 1.2,\;95\%\,\mathrm{CI}[-5.3, 7.6]\))\footnote{As
   preregistered, we estimated the split-half reliability of the VMAC
-  effect using the approach described by Garre-Frutos et al.
-  (\citeproc{ref-garre-frutos2024}{2024}). Reliability was low
+  effect (\citeproc{ref-garre-frutos2024}{Garre-Frutos et al., 2024}),
+  which was low
   (\(r_{\text{sb}} = 0.28, \;95\%\,\text{CI}[0.09, 0.44]\)), suggesting
-  that the observed between-group difference may be attenuated
+  possible attenuation of between-group differences
   (\citeproc{ref-karvelis}{Karvelis \& Diaconescu, 2025};
   \citeproc{ref-wiernik2020}{Wiernik \& Dahlke, 2020}; but see
   \citeproc{ref-parsons2018}{Parsons, 2018}).}. No other effects reached
@@ -708,6 +662,26 @@ interaction remained significant
 (\(\beta_{\mathrm{VMAC x Group}} = 0.006, \; t_{151} = 1.79, \; p = 0.038\)),
 indicating that the interaction with selective attention cannot be
 explained by individual differences in awareness alone.
+
+\begin{figure}[H]
+
+{\caption{{Summary of results}{\label{fig-2}}}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Output/plots/fig2.pdf}}
+
+{\noindent \emph{Note.} \textbf{A}) Mean RTs in the visual search task.
+Bars and dots show condition means; error bars indicate within-subject
+95\% CIs (\citeproc{ref-morey2008}{Morey, 2008}). \textbf{B}) Beta
+regression predictions for awareness results. Transparent dots are
+individual responses; lines and shaded areas show model predictions and
+95\% CIs. \textbf{C}) RT analysis with contingency awareness as
+covariate. Transparent dots show individual VMAC scores; lines and
+shaded areas depict model predictions by task and awareness level.
+Solid, large dots and error bars show group means and 95\% CIs. Note
+that only the group attending to color showed a positive VMAC effect
+(blue dot), but the effect was independent of contingency awareness.}
+
+\end{figure}
 
 \section{Discussion}\label{discussion}
 
@@ -801,6 +775,12 @@ feature, even when it is irrelevant to the search task. This finding
 underscores that VMAC requires selective attention to encode and
 represent the contingency between features and rewards.
 
+\section{Constrains of Generality}\label{constrains-of-generality}
+
+This study was conducted online using a specific experimental paradigm.
+The findings may not generalize to other paradigms or settings
+(\citeproc{ref-anderson2011}{Anderson et al., 2011}).
+
 \section{References}\label{references}
 
 \phantomsection\label{refs}
@@ -827,6 +807,17 @@ Anderson, B. A., \& Yantis, S. (2013). Persistence of value-driven
 attentional capture. \emph{Journal of Experimental Psychology. Human
 Perception and Performance}, \emph{39}(1), 6--9.
 \url{https://doi.org/10.1037/a0030860}
+
+\bibitem[\citeproctext]{ref-lme4}
+Bates, D., Mächler, M., Bolker, B., \& Walker, S. (2015). Fitting linear
+mixed-effects models using {lme4}. \emph{Journal of Statistical
+Software}, \emph{67}(1), 1--48.
+\url{https://doi.org/10.18637/jss.v067.i01}
+
+\bibitem[\citeproctext]{ref-betareg}
+Cribari-Neto, F., \& Zeileis, A. (2010). Beta regression in {R}.
+\emph{Journal of Statistical Software}, \emph{34}(2), 1--24.
+\url{https://doi.org/10.18637/jss.v034.i02}
 
 \bibitem[\citeproctext]{ref-dayan2014}
 Dayan, P., \& Berridge, K. C. (2014). Model-based and model-free
@@ -890,6 +881,12 @@ Gottlieb, J., Hayhoe, M., Hikosaka, O., \& Rangel, A. (2014). Attention,
 Reward, and Information Seeking. \emph{Journal of Neuroscience},
 \emph{34}(46), 15497--15504.
 \url{https://doi.org/10.1523/JNEUROSCI.3270-14.2014}
+
+\bibitem[\citeproctext]{ref-simr}
+Green, P., \& MacLeod, C. J. (2016). Simr: An r package for power
+analysis of generalised linear mixed models by simulation. \emph{Methods
+in Ecology and Evolution}, \emph{7}(4), 493--498.
+\url{https://doi.org/10.1111/2041-210X.12504}
 
 \bibitem[\citeproctext]{ref-gruxe9goire2019}
 Grégoire, L., \& Anderson, B. A. (2019). Semantic generalization of
@@ -1016,11 +1013,6 @@ propositional nature of human associative learning. \emph{Behavioral and
 Brain Sciences}, \emph{32}(2), 183--198.
 \url{https://doi.org/10.1017/S0140525X09000855}
 
-\bibitem[\citeproctext]{ref-morey2008}
-Morey, R. D. (2008). Confidence intervals from normalized data: A
-correction to cousineau (2005). \emph{Tutorials in Quantitative Methods
-for Psychology}, \emph{4}(2), 61--64.
-
 \bibitem[\citeproctext]{ref-parsons2018}
 Parsons, S. (2018). \emph{Visualising two approaches to explore
 reliability-power relationships}. PsyArXiv.
@@ -1039,6 +1031,11 @@ task-irrelevant stimuli is a consequence of early competition on the
 saccade map. \emph{Attention, Perception, \& Psychophysics},
 \emph{78}(7), 2226--2240.
 \url{https://doi.org/10.3758/s13414-016-1135-2}
+
+\bibitem[\citeproctext]{ref-r_ref}
+R Core Team. (2023). \emph{R: A language and environment for statistical
+computing}. R Foundation for Statistical Computing.
+\url{https://www.R-project.org/}
 
 \bibitem[\citeproctext]{ref-Reips2008}
 Reips, U.-D., \& Funke, F. (2008). Interval-level measurement with
@@ -1092,6 +1089,14 @@ Weidemann, G., Satkunarajah, M., \& Lovibond, P. F. (2016). I Think,
 Therefore Eyeblink: The Importance of Contingency Awareness in
 Conditioning. \emph{Psychological Science}, \emph{27}(4), 467--475.
 \url{https://doi.org/10.1177/0956797615625973}
+
+\bibitem[\citeproctext]{ref-tidyverse}
+Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D.,
+François, R., Grolemund, G., Hayes, A., Henry, L., Hester, J., Kuhn, M.,
+Pedersen, T. L., Miller, E., Bache, S. M., Müller, K., Ooms, J.,
+Robinson, D., Seidel, D. P., Spinu, V., \ldots{} Yutani, H. (2019).
+Welcome to the {tidyverse}. \emph{Journal of Open Source Software},
+\emph{4}(43), 1686. \url{https://doi.org/10.21105/joss.01686}
 
 \bibitem[\citeproctext]{ref-wiernik2020}
 Wiernik, B. M., \& Dahlke, J. A. (2020). Obtaining unbiased results in
@@ -1122,6 +1127,17 @@ attentional capture. \emph{Journal of Experimental Psychology. Human
 Perception and Performance}, \emph{39}(1), 6--9.
 \url{https://doi.org/10.1037/a0030860}
 
+\bibitem[\citeproctext]{ref-lme4}
+Bates, D., Mächler, M., Bolker, B., \& Walker, S. (2015). Fitting linear
+mixed-effects models using {lme4}. \emph{Journal of Statistical
+Software}, \emph{67}(1), 1--48.
+\url{https://doi.org/10.18637/jss.v067.i01}
+
+\bibitem[\citeproctext]{ref-betareg}
+Cribari-Neto, F., \& Zeileis, A. (2010). Beta regression in {R}.
+\emph{Journal of Statistical Software}, \emph{34}(2), 1--24.
+\url{https://doi.org/10.18637/jss.v034.i02}
+
 \bibitem[\citeproctext]{ref-dayan2014}
 Dayan, P., \& Berridge, K. C. (2014). Model-based and model-free
 Pavlovian reward learning: Revaluation, revision, and revelation.
@@ -1184,6 +1200,12 @@ Gottlieb, J., Hayhoe, M., Hikosaka, O., \& Rangel, A. (2014). Attention,
 Reward, and Information Seeking. \emph{Journal of Neuroscience},
 \emph{34}(46), 15497--15504.
 \url{https://doi.org/10.1523/JNEUROSCI.3270-14.2014}
+
+\bibitem[\citeproctext]{ref-simr}
+Green, P., \& MacLeod, C. J. (2016). Simr: An r package for power
+analysis of generalised linear mixed models by simulation. \emph{Methods
+in Ecology and Evolution}, \emph{7}(4), 493--498.
+\url{https://doi.org/10.1111/2041-210X.12504}
 
 \bibitem[\citeproctext]{ref-gruxe9goire2019}
 Grégoire, L., \& Anderson, B. A. (2019). Semantic generalization of
@@ -1334,6 +1356,11 @@ saccade map. \emph{Attention, Perception, \& Psychophysics},
 \emph{78}(7), 2226--2240.
 \url{https://doi.org/10.3758/s13414-016-1135-2}
 
+\bibitem[\citeproctext]{ref-r_ref}
+R Core Team. (2023). \emph{R: A language and environment for statistical
+computing}. R Foundation for Statistical Computing.
+\url{https://www.R-project.org/}
+
 \bibitem[\citeproctext]{ref-Reips2008}
 Reips, U.-D., \& Funke, F. (2008). Interval-level measurement with
 visual analogue scales in internet-based research: VAS generator.
@@ -1386,6 +1413,14 @@ Weidemann, G., Satkunarajah, M., \& Lovibond, P. F. (2016). I Think,
 Therefore Eyeblink: The Importance of Contingency Awareness in
 Conditioning. \emph{Psychological Science}, \emph{27}(4), 467--475.
 \url{https://doi.org/10.1177/0956797615625973}
+
+\bibitem[\citeproctext]{ref-tidyverse}
+Wickham, H., Averick, M., Bryan, J., Chang, W., McGowan, L. D.,
+François, R., Grolemund, G., Hayes, A., Henry, L., Hester, J., Kuhn, M.,
+Pedersen, T. L., Miller, E., Bache, S. M., Müller, K., Ooms, J.,
+Robinson, D., Seidel, D. P., Spinu, V., \ldots{} Yutani, H. (2019).
+Welcome to the {tidyverse}. \emph{Journal of Open Source Software},
+\emph{4}(43), 1686. \url{https://doi.org/10.21105/joss.01686}
 
 \bibitem[\citeproctext]{ref-wiernik2020}
 Wiernik, B. M., \& Dahlke, J. A. (2020). Obtaining unbiased results in

@@ -1,7 +1,6 @@
 ---
 title: "The Role of Selective Attention in Value-Modulated Attentional Capture"
 shorttitle: "THE ROLE OF SELECTIVE ATTENTION IN VMAC"
-output-dir: Output       # <-- this sends every rendered file into /docs
 author:
   - name: Francisco Garre-Frutos
     orcid: 0000-0001-5052-066X
@@ -86,7 +85,7 @@ impact-statement: |
 keywords: [attentional capture, learning, reward, selective attention, awareness]
 author-note:
   disclosures:
-    study-registration: "Hypothesis, design and data analysis for the present study were preregistered before data collection at [https://osf.io/f3bm8](https://osf.io/f3bm8)"
+    study-registration: "Hypothesis, design and data analysis for the present study were preregistered before data collection at [https://osf.io/f3bm8](https://osf.io/f3bm8) and [https://osf.io/f3bm8](https://osf.io/f3bm8)."
     data-sharing: "All data and analysis scripts are aviable at: [https://osf.io/ezcrn](https://osf.io/ezcrn)"
     conflict-of-interest: The authors have no conflicts of interest to disclose.
     financial-support: "This study was supported by the Ministerio de Ciencia, Innovación y Universidades: Grants PID2023-148421NB-I00 and PID2023-150830NB-I00, funded by MICIU/AEI/10.13039/501100011033 and FEDER, UE; CEX2023-001312-M funded by MICIU/AEI/10.13039/501100011033 and UCE-PP2023-11 funded by the University of Granada and an FPU predoctoral fellowship (ref. FPU20/00826) to FGF. JT was supported by a European Research Council (ERC) advanced grant [833029 - LEARNATTEND] and a grant from the
@@ -123,10 +122,15 @@ format:
     toc: false
     papersize: "us-letter"
   apaquarto-pdf:
-    documentmode: jou
+    citeproc: false
+    filters:
+      - at: pre-quarto
+        path: _extensions/andrewheiss/wordcount/citeproc.lua
+      - at: pre-quarto
+        path: _extensions/andrewheiss/wordcount/wordcount.lua
+    documentmode: man
     keep-tex: true
     fig-pos: 'h'
-    citeproc: true
 ---
 
 ```{r analysis}
@@ -142,7 +146,7 @@ source(here("Scripts/functions.R"))
 source(here("Scripts/analysis.R"))
 ```
 
-```{r}
+```{r report}
 #| warning: false
 #| echo: false
 #| output: false
@@ -233,6 +237,9 @@ acc_report_latex <- avg_predictions(fit_list[["REPORT"]]) %>%
   ) %>% 
   pull(latex)
 
+# Power: ----
+power <- readRDS("Output/powerVMAC.rds")
+
 ```
 
 When individuals learn to associate a specific stimulus feature with reward, this stimulus often becomes a stronger distractor in visual search tasks [@anderson2021; @failing2018]. The weight of evidence suggests that the learning process underlying this phenomenon is Pavlovian in nature and thus depends on the history of stimulus-reward pairings [@lepelley2016]. One of the clearest demonstrations of this Pavlovian account is provided by @lepelley2015, who used a modified version of the additional singleton task [@theeuwes1992; @theeuwes1994]. In their study, participants searched for a target defined by one feature (shape) while a uniquely colored distractor was occasionally presented. Critically, rewards were contingent on the distractor's color—one color predicted high reward, the other low reward. When the high-reward singleton appeared, participants showed increased response times (RTs) compared to trials with the low-reward singleton, an effect known as value-modulated attentional capture (VMAC).
@@ -249,49 +256,42 @@ As preregistered, we hypothesized a dissociation in VMAC based on the type of co
 
 # Methods
 
-This study followed the principles of the Declaration of Helsinki. Approval was granted by the Ethics Committee at the University of Granada (ref. 2442/CEIH/2021).
+The study was approved by the Ethics Committee at the University of Granada (2442/CEIH/2021) and adhered to the Declaration of Helsinki
 
 ## Transparency and openness
 
-The experiment reported in the present Observation complies with the TOP guidelines. All materials, data, and scripts are publicly available at the Open Science Framework (<https://osf.io/ezcrn>). The methods and analysis were preregistered before any data collection took place. The registered protocols are publicly available at <https://osf.io/f3bm8>. The method sections in the present article merely paraphrase the information provided in the preregistation. The data were collected in December 2024.
+This experiment complies with the TOP guidelines. All materials, data, and scripts are publicly available at [https://osf.io/eczrn](https://osf.io/ezcrn) and [https://github.com/franfrutos/vmac_selective](https://github.com/franfrutos/vmac_selective), and the preregistered methods and analyses ([https://osf.io/f3bm8](https://osf.io/f3bm8)) were registered before data collection in December 2024. Data were analyzed using R, version 4.3.1 [@r_ref][^1]. We report how we determined our sample size, data exclusions, manipulations, and measures in the study.
+
+[^1]: R packages: *lme4* [@lme4], *betareg* [@betareg] and *tidyverse* [@tidyverse].
 
 ## Participants
 
-Based on a preregistered power analysis, we aimed to recruit at least 140 participants (70 per group), but we collected data from 160 participants,bearing in mind our preregistered exclusion criteria. From those participants, we excluded seven participants with exceptionally low accuracy (\<70% or mean RTs $\pm$ 3SDs) or poor performance in the reporting task described below[^1]. Our final sample consisted on 153 participants ($n_{color} = 77$; $n_{location} = 76$; 117 self-reported as female; $M_{age} = 21.4$, $SD_{age} = 4.2$).
+We performed a simulation-based power analysis (fully reported at <https://osf.io/f3bm8>) for the critical Group (color vs. location) × Distractor (high- vs. low-value) interaction, based on a similar effect from the linear mixed model (LMM) in @garre-frutos2025a (effect size: $\beta = 0.018$), excluding trials from the first 48 trials where VMAC is typically not observed [@garre-frutos2024; @garre-frutos2025a]. Power was estimated using R [version 4.3.1\; @r_ref] and the *simr* package [@simr]. Simulations indicated that 70 participants per group would yield `r power[6, "mean"]*100`% power (α = .05). To account for exclusions, we collected data from 80 participants per group. Seven participants were excluded due to low accuracy (<70%), RTs deviating ±3 SDs from the group mean, or poor performance in the reporting task[^2]. The final sample included 153 participants ($n_{\text{color}} = 77$, $n_{\text{location}} = 76$; 117 self-identified as women; $M_{\text{age}} = 21.4$, $SD = 4.2$).
 
-[^1]: We included only those participants performing significantly above chance level (determined by a binomial test at $p = 0.5$).
+[^2]: As preregistered, only participants performing above chance were included.
 
 ## Design and procedure
 
-Participants completed an online version of the additional singleton task [@garre-frutos2024; @garre-frutos2025a] in which they searched for a diamond target among circle distractors. The target always contained a horizontally or vertically oriented line segment, while each circle contained a line segment tilted by 45 degrees. On most trials, one of these circles appeared in a uniquely colored singleton distractor (orange and blue or pink and green, counterbalanced across participants), which could be either a high- or a low-value color. Participants were instructed to locate and report the orientation of the line segment within the diamond as quickly as possible by pressing the \<b\> key for horizontal or the \<j\> key for vertical.
+Participants completed an online version of the additional singleton task [@garre-frutos2024], in which they searched for a diamond target among circle distractors. The target always contained a horizontally or vertically oriented line segment, while each circle contained a segment tilted by 45 degrees. On most trials, one of the circles appeared in a uniquely colored singleton distractor (orange and blue or pink and green, counterbalanced across participants), which could be either a high- or low-value color. Participants were instructed to locate and report the orientation of the line segment within the diamond as quickly as possible by pressing the <b> key for horizontal or the <j> key for vertical.
 
-Participants received 0.1 points for every millisecond that their RTs were below 1000 ms on low-value distractor trials. On high-value trials, points were multiplied by 10. No points were awarded for responses with RTs greater than 1000 ms, and errors resulted in the loss of the same number of points that would have been earned. Critically, participants were not informed of the relationship between color and reward. The task consisted of six blocks of 48 trials (20 high- and low-value trials each, and 8 distractor-absent trials).
-
-```{r}
+```{r fig-1}
 #| label: fig-1
 #| fig-cap: Schematic representation of the task.
 #| apa-note: Example of the sequence of events in the experimental task. Participants could earn points based on performance, and when a high-value singleton appeared in the display, points were multiplied by 10 (a bonus trial). In some trials, participants were presented with the letter 'R', which signaled that participants had to report the color or the location (as a function of the assigned group) of the distractor in the preceding trial. Feedback was provided in Spanish.
-#| apa-twocolumn: false
+#| fig-pos: "h"
 #| fig-height: 1
 knitr::include_graphics("pre_registation/figure_3.png")
 ```
 
-Participants were randomly assigned to one of two groups, and each group was required to perform a brief secondary task that occurred pseudorandomly at the end of selected trials. One group reported the color of the singleton distractor presented in the previous trial, while the other group reported its location, indicating whether it appeared on the left or right side of the display (Figure 1). Participants were informed that the letter "R" would occasionally appear on the display after the reward feedback, indicating that they had to report either the color or the location of the distractor, depending on their assigned group, using the \<c\> and \<m\> keys to indicate left or right. To integrate the reporting task with the visual search task, correct responses in the reporting task were worth 2000 points, while incorrect responses resulted in the loss of the same number of points. However, feedback on performance on these trials was provided only at the end of each block. Participants encountered either two or four report trials per block, with at least one in the first half and one in the second half of the block.
+Participants received 0.1 points for every millisecond their RTs were below 1000 ms on low-value distractor trials. On high-value trials, points were multiplied by 10. No points were awarded for RTs above 1000 ms, and errors resulted in the loss of the same number of points. Critically, participants were not informed of the relationship between color and reward. The task consisted of six blocks of 48 trials (20 high- and low-value trials each, and 8 distractor-absent trials).
 
-At the end of the experiment, participants completed an awareness test to assess their knowledge of the color-reward contingencies using a Visual Analog Scale [VAS\; @Reips2008]. First, they rated the extent to which they believed that the color of the distractor influenced the likelihood of "bonus trials" (*contingency belief*), on a scale from 0 ("I don't believe color makes any difference") to 100 ("I believe color completely determines the likelihood of bonus trials"). They then estimated the relative proportion of bonus trials associated with each color (*contingency awareness*). To do this, they were presented with another VAS showing the high- and low-rated distractors with endpoints indicating the percentage of bonus trials estimated to be associated with each color. After providing these ratings, participants indicated their confidence in each answer using a confidence VAS ranging from 0 ("no confidence") to 100 ("very confident").
+Participants were randomly assigned to one of two groups, each required to perform a brief secondary task that occurred pseudorandomly at the end of selected trials. One group reported the color of the singleton distractor from the previous trial, while the other reported its location, indicating whether it appeared on the left or right side of the display (Fig. 1). Participants were informed that the letter "R" would occasionally appear on the display after reward feedback, indicating that they had to report either the color or the location of the distractor, depending on their assigned group, using the <c> and <m> keys to indicate left or right. To integrate the reporting task with the visual search task, correct responses were worth 2000 points, while incorrect responses resulted in the loss of the same number of points. Feedback on these trials was provided only at the end of each block. Participants encountered two or four report trials per block, with at least one in each half.
 
-```{r}
-#| label: fig-2
-#| fig-cap: Summary of results
-#| apa-note: "**A**) Mean RTs in the visual search task. Bars and dots show condition means; error bars indicate within-subject 95% CIs [@morey2008]. **B**) Beta regression predictions for awareness results. Transparent dots are individual responses; lines and shaded areas show model predictions and 95% CIs. **C**) RT analysis with contingency awareness as covariate. Transparent dots show individual VMAC scores; lines and shaded areas depict model predictions by task and awareness level. Solid, large dots and error bars show group means and 95% CIs. Note that only the group attending to color showed a positive VMAC effect (blue dot), but the effect was independent of contingency awareness."
-#| apa-twocolumn: true
-
-knitr::include_graphics("Output/plots/fig2.pdf")
-```
+At the end of the experiment, participants completed an awareness test to assess their knowledge of the color-reward contingencies using a Visual Analog Scale [VAS\; @Reips2008]. First, they rated the extent to which they believed the distractor color influenced the likelihood of "bonus trials" (contingency belief), on a scale from 0 ("I don't believe color makes any difference") to 100 ("I believe color completely determines the likelihood of bonus trials"). They then estimated the relative proportion of bonus trials associated with each color (contingency awareness). To do this, they were presented with another VAS showing the high- and low-rated distractors with endpoints indicating the percentage of bonus trials estimated to be associated with each color. After providing these ratings, participants indicated their confidence in each answer using a confidence VAS ranging from 0 ("no confidence") to 100 ("very confident").
 
 # Results
 
-All the analyses reported in this section follow our preregistered analysis plan (<https://osf.io/f3bm8>). We excluded incorrect responses (`r incorrect`%), outliers (RTs < 150 or > 1800 ms; `r outlier`%), and all trials from the first block of the visual search task.
+All the analyses reported follow our preregistered analysis plan (<https://osf.io/f3bm8>). Following preregistration, we excluded incorrect responses (`r incorrect`%), anticipations and timeouts (RTs < 150 or > 1800 ms; `r outlier`%), and all trials from the first block of the visual search task (as explained above).
 
 ## Report task
 
@@ -299,21 +299,30 @@ We fitted a generalized linear mixed model (GLMM) with binomial likelihood to an
 
 ## Visual search task
 
-We analyzed log-transformed RTs using linear mixed models that included two predictors of theoretical interest: value-modulated attentional capture (VMAC: high- vs. low-value distractor) and attentional capture (AC: low-value vs. absent distractor), along with a Group predictor (color vs. location report task). As preregistered and following our hypothesis, all contrasts were two-tailed except for the VMAC × Group interaction, for which we used a one-tailed test in the direction of a larger VMAC effect in the color group.
+We analyzed log-transformed RTs using LMMs that included two predictors of theoretical interest: value-modulated attentional capture (VMAC: high- vs. low-value distractor) and attentional capture (AC: low-value vs. absent distractor), along with a Group predictor (color vs. location report task). As preregistered and following our hypothesis, all contrasts were two-tailed except for the VMAC × Group interaction, for which we used a one-tailed test in the direction of a larger VMAC effect in the color group.
 
-RT analyses showed significant effects of both AC and VMAC (`r report_coef(fit_list[["RTs_VST"]], "SingletonVMAC", term_name ="VMAC")`; `r report_coef(fit_list[["RTs_VST"]], "SingletonAC", term_name ="AC")`), indicating that participants were slower in the presence of a high-value distractor (`r preds_latex[2]`) compared to a low-value distractor (`r preds_latex[1]`), and faster when no distractor was present (`r preds_latex[3]`). Critically, the Group predictor interacted significantly only with VMAC (`r report_coef(fit_list[["RTs_VST"]], "SingletonVMAC:Taskc_vs_L", term_name ="VMAC x Group", one.sided=T)`; Fig. 2A), such that a significant VMAC effect was observed in the color group (`r comps_latex[1]`) but not in the location group (`r comps_latex[2]`)[^2]. No other effects reached significance (*ps* > `r round(get_least_non_significant(fit_list[["RTs_VST"]]), 3)`).
+RT analyses showed significant effects of both AC and VMAC (`r report_coef(fit_list[["RTs_VST"]], "SingletonVMAC", term_name ="VMAC")`; `r report_coef(fit_list[["RTs_VST"]], "SingletonAC", term_name ="AC")`), indicating that participants were slower in the presence of a high-value distractor (`r preds_latex[2]`) compared to a low-value distractor (`r preds_latex[1]`), and faster when no distractor was present (`r preds_latex[3]`). Critically, the Group predictor interacted significantly only with VMAC (`r report_coef(fit_list[["RTs_VST"]], "SingletonVMAC:Taskc_vs_L", term_name ="VMAC x Group", one.sided=T)`; Fig. 2A), such that a significant VMAC effect was observed in the color group (`r comps_latex[1]`) but not in the location group (`r comps_latex[2]`)[^3]. No other effects reached significance (*ps* > `r round(get_least_non_significant(fit_list[["RTs_VST"]]), 3)`).
 
-[^2]: As preregistered, we estimated the split-half reliability of the VMAC effect using the approach described by @garre-frutos2024. Reliability was low (`r latex_rel`), suggesting that the observed between-group difference may be attenuated [@karvelis; @wiernik2020; but see @parsons2018].
+[^3]: As preregistered, we estimated the split-half reliability of the VMAC effect [@garre-frutos2024], which was low (`r latex_rel`), suggesting possible attenuation of between-group differences [@karvelis; @wiernik2020; but see @parsons2018].
 
 We also analyzed accuracy with a GLMM and a binomial likelihood. Overall, accuracy was high (`r acc_latex`) and none of the predictors reached significance (*ps* > `r round(get_least_non_significant(fit_list[["ACC_VST"]]), 3)`).
 
 ## Awareness
 
-Following our preregistered plan, we analyzed awareness measures using beta regression [@smithson2006]. Neither measure differed significantly between groups (*ps* > 0.224). However, the two awareness measures were significantly correlated ($\beta = 0.551, \; z = 6.632, \; p < 0.001$; Fig. 2B) with no significant group differences in this correlation (*p* = 0.444). While contingency awareness was positively associated with confidence ($\beta = 0.579, \; z = 7.197, \; p < 0.001$; no group difference, *p* = 0.409), contingency belief was not (*ps* > 0.231)[^3]. 
+Following our preregistered plan, we analyzed awareness measures using beta regression [@smithson2006]. Neither measure differed significantly between groups (*ps* > 0.224). However, the two awareness measures were significantly correlated ($\beta = 0.551, \; z = 6.632, \; p < 0.001$; Fig. 2B) with no significant group differences in this correlation (*p* = 0.444). While contingency awareness was positively associated with confidence ($\beta = 0.579, \; z = 7.197, \; p < 0.001$; no group difference, *p* = 0.409), contingency belief was not (*ps* > 0.231)[^4]. 
 
-[^3]: Note that this result only suggests that the relationship between contingency belief and confidence is less clear than contingency awareness, as participants with high contingency belief also report high contingency awareness.
+[^4]: Note that this result only suggests that the relationship between contingency belief and confidence is less clear than contingency awareness, as participants with high contingency belief also report high contingency awareness.
 
 As preregistered, we repeated the RT analysis restricted to high- and low-value distractor trials, including contingency awareness and its interaction with VMAC as covariates. This analysis revealed a significant VMAC × awareness interaction (`r report_coef(fit_list[["fit_aw"]], "SingletonVMAC:scale(Awareness2)", term_name ="VMAC x Awareness")`), indicating a positive association (Figure 2C). However, the VMAC × Group interaction remained significant (`r report_coef(fit_list[["fit_aw"]], "SingletonVMAC:Taskc_vs_L", term_name ="VMAC x Group", one.sided=T)`), indicating that the interaction with selective attention cannot be explained by individual differences in awareness alone.
+
+```{r fig-2}
+#| label: fig-2
+#| fig-cap: Summary of results
+#| fig-pos: "H"
+#| apa-note: "**A**) Mean RTs in the visual search task. Bars and dots show condition means; error bars indicate within-subject 95% CIs [@morey2008]. **B**) Beta regression predictions for awareness results. Transparent dots are individual responses; lines and shaded areas show model predictions and 95% CIs. **C**) RT analysis with contingency awareness as covariate. Transparent dots show individual VMAC scores; lines and shaded areas depict model predictions by task and awareness level. Solid, large dots and error bars show group means and 95% CIs. Note that only the group attending to color showed a positive VMAC effect (blue dot), but the effect was independent of contingency awareness."
+
+knitr::include_graphics("Output/plots/fig2.pdf")
+```
 
 # Discussion
 
@@ -324,6 +333,10 @@ The role of awareness in VMAC is controversial. Some studies suggest that stimul
 We also found that VMAC significantly correlated with contingency awareness, independent of the selective attention manipulation. Based on the previous account, learning should depend not only on selective attention to the reward-predictive feature, but also on reward feedback. Thus, contingency awareness could reflect joint attention to both elements, reflecting the same mechanism triggered by our manipulation. However, the effect of awareness could also imply that propositional knowledge triggers Pavlovian learning through a different mechanism [@mitchell2009; @pauli2019; @dayan2014], or even that knowledge of feature-reward associations might artificially amplify VMAC effect sizes for reasons unrelated to Pavlovian learning, such as strategic attention to high-value distractors to maximize information [@mahlberg; @gottlieb2014; @doyle2025] or the introduction of a subtle speed-accuracy trade-off [@garre-frutos2025b].
 
 In summary, our study shows that the relationship between attention and VMAC can be mediated by selective attention to the reward-predictive feature, even when it is irrelevant to the search task. This finding underscores that VMAC requires selective attention to encode and represent the contingency between features and rewards.
+
+# Constrains of Generality
+
+This study was conducted online using a specific experimental paradigm. The findings may not generalize to other paradigms or settings [@anderson2011]. 
 
 # References
 

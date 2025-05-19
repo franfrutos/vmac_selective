@@ -1,0 +1,19 @@
+\begin{figure*}[h]
+
+{\caption{{Summary of results}{\label{fig-2}}}}
+
+\pandocbounded{\includegraphics[keepaspectratio]{Output/plots/fig2.pdf}}
+
+{\noindent \emph{Note.} \textbf{A}) Mean RTs in the visual search task.
+Bars and dots show condition means; error bars indicate within-subject
+95\% CIs (\citeproc{ref-morey2008}{Morey, 2008}). \textbf{B}) Beta
+regression predictions for awareness results. Transparent dots are
+individual responses; lines and shaded areas show model predictions and
+95\% CIs. \textbf{C}) RT analysis with contingency awareness as
+covariate. Transparent dots show individual VMAC scores; lines and
+shaded areas depict model predictions by task and awareness level.
+Solid, large dots and error bars show group means and 95\% CIs. Note
+that only the group attending to color showed a positive VMAC effect
+(blue dot), but the effect was independent of contingency awareness.}
+
+\end{figure*}
