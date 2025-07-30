@@ -33,6 +33,7 @@ filter_data <- function(data,
     group_by(ID) %>%
     dplyr::summarise(mean_ACC = mean(correct)) %>% filter(mean_ACC < .7) %>% pull(ID)
   
+  
   out <- data %>%
     filter(Phase %in% phase, !ID %in% acc_ex)
   
@@ -225,6 +226,19 @@ get_effects <- function(d, exp = "e2") {
   }
 }
 
+
+format_interaction <- function(vars) {
+  # vars: vector of characters, e.g. c("VMAC") o c("VMAC","Group")
+  # format each element as \mathrm{…}
+  formatted <- sprintf("\\mathrm{%s}", vars)
+  # if more than one element add " \\times " in between
+  if (length(formatted) == 1) {
+    return(formatted)
+  } else {
+    return(paste(formatted, collapse = " \\times "))
+  }
+}
+
 # Function to report predictors from (G)LMMs:
 report_coef <- function(model, term, term_name, one.sided = F, digits = 3) {
   model_sum <- summary(model)
@@ -246,8 +260,9 @@ report_coef <- function(model, term, term_name, one.sided = F, digits = 3) {
       p_output <-  if (p_value < .001) "p < 0.001" else paste0("p = ", format(round(p_value, digits), nsmall = digits))
     }
     test_name <- "t"
-    latex_code <- sprintf("$\\beta_{\\mathrm{%s}} = %s, \\; %s_{%s} = %s, \\; %s$",
-                          term_name,
+    name <- format_interaction(term_name)
+    latex_code <- sprintf("$\\beta_{%s} = %s, \\; %s_{%s} = %s, \\; %s$",
+                          name,
                           format(round(coef_est, digits), nsmall = digits),
                           test_name,
                           format(round(df_value, 0)),
@@ -256,8 +271,8 @@ report_coef <- function(model, term, term_name, one.sided = F, digits = 3) {
   } else if ("z value" %in% colnames(model_sum$coefficients)) {
     test_stat <- model_sum$coefficients[term, "z value"]
     test_name <- "z"
-    latex_code <- sprintf("$\\beta_{\\mathrm{%s}} = %s, \\; %s = %s, \\; %s$",
-                          term_name,
+    latex_code <- sprintf("$\\beta_{%s} = %s, \\; %s = %s, \\; %s$",
+                          name,
                           format(round(coef_est, digits), nsmall = digits),
                           test_name,
                           format(round(test_stat, 2), nsmall = 2),
@@ -290,3 +305,4 @@ get_least_non_significant <- function(model) {
 
   return(nonsig[selected])
 }
+

@@ -195,11 +195,30 @@ comps_df <- avg_comparisons(
   by = "Task",
 )
 
+# VMAC effect:
+comps_df2 <- avg_comparisons(
+  fit_list[["fit_aw"]],
+  variables = list(Singleton = "revsequential"),
+  comparison = \(hi, lo) exp(hi + sigma(fit_list[["fit_aw"]])^2) - exp(lo + sigma(fit_list[["fit_aw"]])^2),
+  by = "Task",
+)
+
 # Get latex code
 digits <- 1
 comps_latex <- vector()
+comps_latex2 <- vector()
+
 
 for (i in seq_len(nrow(comps_df))) {
+  comps_latex[i] <- sprintf(
+    "$M_{\\mathrm{%s}} = %s,\\;95\\%%\\,\\mathrm{CI}[%s, %s]$",
+    ifelse(i %in% 1:2, "VMAC", "AC"),
+    format(round(comps_df[i,4], digits), nsmall = digits),
+    format(round(comps_df[i,9], digits), nsmall = digits),
+    format(round(comps_df[i,10], digits), nsmall = digits))
+}
+
+for (i in seq_len(nrow(comps_df2))) {
   comps_latex[i] <- sprintf(
     "$M_{\\mathrm{%s}} = %s,\\;95\\%%\\,\\mathrm{CI}[%s, %s]$",
     ifelse(i %in% 1:2, "VMAC", "AC"),

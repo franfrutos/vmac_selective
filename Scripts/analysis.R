@@ -10,6 +10,9 @@ p_load(tidyr, Rmisc, here, dplyr, stringr,
 summarise <- dplyr::summarise
 mutate <- dplyr::mutate
 
+source(here::here("Scripts/functions.R")) # Load data and all relevant functions
+
+
 # Load raw data ----
 raw <- read.csv("Input/data.csv")
 
@@ -156,22 +159,22 @@ fig2a <- ggplot(data = d_within, aes(x = Singleton, y = rt, color = task,
     )
 
 # Accuracy:
-d <- raw %>%
+d_acc <- raw %>%
   filter(Phase == "Rewarded", rt > 150, rt < 1800, !ID %in% c(exclusions), Block_num > 2) %>%
   dplyr::summarise(ACC = mean(correct), n = n(), .by = c(task, ID, Singleton))
 
 # Set hypothesis matrix:
-d$Singleton <-
-  factor(d$Singleton, levels = c("High", "Low", "Absent"))
-d$Task <- ifelse(d$task == "L", -.05, .05)
-contrasts(d$Singleton) <- contr.hypothesis(HcRep)
+d_acc$Singleton <-
+  factor(d_acc$Singleton, levels = c("High", "Low", "Absent"))
+d_acc$Task <- ifelse(d_acc$task == "L", -.05, .05)
+contrasts(d_acc$Singleton) <- contr.hypothesis(HcRep)
 
 # Fit model:
 fitACC <-
   glmer(
     ACC ~ Singleton*task + (1 | ID),
     control = glmerControl(optimizer = 'bobyqa'),
-    data = d,
+    data = d_acc,
     weights = n,
     family = binomial()
   )
@@ -222,7 +225,8 @@ fit_list[["REPORT"]] <- fit_report
 awareness <- raw %>% filter(Phase == "Awareness1" |
                                                 Phase == "Confidence1" |
                                                 Phase == "Confidence2" |
-                                                Phase == "Awareness2", !ID %in% c(exclusions)) %>% select(ID, task, Phase, response) %>%
+                                                Phase == "Awareness2", !ID %in% c(exclusions)) %>%
+  select(ID, task, Phase, response) %>%
   dplyr::mutate(response = as.numeric(response)/100,
                 n = n(),
                 response = transform_data(response, n=n)) %>%
@@ -236,14 +240,23 @@ awareness$Task <- factor(awareness$task, levels = c("C", "L"))
 contrasts(awareness$Task) <- contr.sum(2)
 colnames(contrasts(awareness$Task)) <- c("c_vs_L")
 
-# Between-group differences
+# Preregistered analyses:
+# Between-group differences in awareness
 # Contingency Belief
 summary(betareg(Awareness1~Task, data = awareness)) # What is the percentage of bonus trials you earned with each color distractor?
 
 # Contingency awareness
 summary(betareg(Awareness2~Task, data = awareness)) # What is the percentage of bonus trials you earned with each color distractor?
 
-# Validity of the measures:
+# Non-preregistered analysis
+# Between-group differences in confidence
+# Contingency Belief
+summary(betareg(Confidence1~Task, data = awareness)) # What is the percentage of bonus trials you earned with each color distractor?
+
+# Contingency awareness
+summary(betareg(Confidence2~Task, data = awareness)) # What is the percentage of bonus trials you earned with each color distractor?
+
+# Preregistered validity check:
 # 1: Is response confidence associated with awareness
 # Color:
 # Contingency Belief
@@ -255,13 +268,39 @@ summary(betareg(Awareness2~scale(Confidence2)*Task, data = awareness)) # Positiv
 # 2: Are both measures of awareness associated with each other?
 summary(betareg(Awareness2~scale(Awareness1)*Task, data = awareness)) # Positively related
 
+# Non-preregistered analysis
+# Between-group differences in confidence
+# Contingency Belief
+summary(betareg(Confidence1~Task, data = awareness)) # What is the percentage of bonus trials you earned with each color distractor?
+
+# Contingency awareness
+summary(betareg(Confidence2~Task, data = awareness)) # What is the percentage of bonus trials you earned with each color distractor?
+
+# Group-level predictions:
+group_awareness <- rbind(marginaleffects::avg_predictions(betareg(Awareness2~Task, data = awareness), condition = c("Task"),
+                                 by = "Task") %>% mutate(Awareness = "Awareness2"),
+      marginaleffects::avg_predictions(betareg(Awareness1~Task, data = awareness), condition = c("Task"),
+                                       by = "Task") %>% mutate(Awareness = "Awareness1")) %>%
+  select(Awareness, Task, estimate, conf.high, conf.low) %>%
+  pivot_wider(values_from = c("estimate", "conf.low", "conf.high"), names_from = "Awareness")
+
 # Plot:
 fig2b <- marginaleffects::avg_predictions(betareg(Awareness2~scale(Awareness1)*Task, data = awareness), condition = c("Awareness1", "Task"),
                                                     by =c("Awareness1", "Task")) %>%
   ggplot(aes(Awareness1, estimate, color = Task, fill = Task))+
   geom_line(aes(linetype = Task), size = 1) +
+  geom_point(data = awareness, aes(x = Awareness1, y = Awareness2, color = task), alpha = .3, size = 1) +
+  geom_errorbar(data = group_awareness, aes(y = estimate_Awareness2,
+                                            x = estimate_Awareness1,
+                                            ymin = conf.low_Awareness2,
+                                            ymax = conf.high_Awareness2), width = 0) +
+  geom_errorbarh(data = group_awareness, aes(y = estimate_Awareness2,
+                                             x = estimate_Awareness1,
+                                             xmin = conf.low_Awareness1,
+                                             xmax = conf.high_Awareness1), height = 0) +
+  geom_point(data = group_awareness, aes(y = estimate_Awareness2, x = estimate_Awareness1), size = 2.2,
+             shape = 21) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = .2, color = NA)+
-  geom_point(data = awareness, aes(x = Awareness1, y = Awareness2, color = task), alpha = .3, size = 1)+
   scale_color_manual(values = c("C" = "#258da5", "L" = "#C15F1E"), # Customize colors
                      labels = c("C" = "Color", "L" = "Location")) + # Custom labels
   scale_fill_manual(
@@ -286,7 +325,7 @@ fig2b <- marginaleffects::avg_predictions(betareg(Awareness2~scale(Awareness1)*T
   theme_Publication(text_size = 10) +
   theme(legend.position = "none")
 
-# Is the previous interaction explained away by individual differences in awareness?
+# Preregistered analysis; is the previous interaction explained away by individual differences in awareness?
 # Only adding scale(Awareness2) as a covariate
 
 # Load data
@@ -294,6 +333,7 @@ d <- raw %>%
   filter(Phase == "Rewarded", rt > 150, rt < 1800, correct == 1, !ID %in% c(exclusions), Block_num > 2)
 
 d <- left_join(d, awareness[,c("Awareness2", "ID")])
+d$Awareness <- d$Awareness2
 
 # Set contrasts
 d$Singleton <-
@@ -307,7 +347,7 @@ contrasts(d$Singleton) <- contr.hypothesis(HcRep)
 # Fit model
 fit <-
   lmer(
-    log_RT ~ Singleton * Task + scale(Awareness2) * Singleton + (Singleton | ID),
+    log_RT ~ Singleton * Task + scale(Awareness) * Singleton + (Singleton | ID),
     control = lmerControl(optimizer = 'bobyqa'),
     data = d
   )
@@ -316,30 +356,91 @@ fit <-
 summary(fit)
 
 # one-tailed p-value for VMAC:Task
-pt(summary(fit)$coefficients[6, 4], summary(fit)$coefficients[6, 3], lower.tail = F) 
+pt(summary(fit)$coefficients[6, 4], summary(fit)$coefficients[6, 3], lower.tail = F) # Raw summary
 
 # Save for later
 fit_list[["fit_aw"]] <- fit
 
+# VMAC effect in both groups after controlling for awareness. 
+(compsAw_df <- avg_comparisons(
+  fit_list[["fit_aw"]],
+  variables = list(Singleton = "revsequential"),
+  newdata = datagrid(
+    Awareness = 0,
+    Task = unique
+  ),
+  comparison = \(hi, lo) exp(hi + sigma(fit_list[["fit_aw"]])^2) - exp(lo + sigma(fit_list[["fit_aw"]])^2),
+  by = "Task",
+))
+
+# Non-preregistered robustness test:
+ps <- numeric(3)
+
+for (i in 1:3) {
+  
+  d <- raw %>%
+    filter(Phase == "Rewarded", rt > 150, rt < 1800, correct == 1, !ID %in% c(exclusions))
+  
+  if (i == 1) {
+    d <- left_join(d, awareness[,c("Awareness2", "Confidence2", "ID")])
+    d$Awareness <- d$Awareness2 * d$Confidence2
+  }
+  
+  if (i == 2) {
+    d <- left_join(d, awareness[,c("Awareness1", "ID")])
+    d$Awareness <- d$Awareness1
+  }
+  
+  if (i == 3) {
+    d <- left_join(d, awareness[,c("Awareness1", "Confidence1", "ID")])
+    d$Awareness <- d$Awareness1 * d$Confidence1
+  }
+  
+  # Set contrasts
+  d$Singleton <-
+    factor(d$Singleton, levels = c("High", "Low", "Absent"))
+  d$Task <- factor(d$task, levels = c("C", "L"))
+  contrasts(d$Task) <- contr.sum(2)
+  colnames(contrasts(d$Task)) <- c("c_vs_L")
+  d$log_RT <- log(d$rt)
+  contrasts(d$Singleton) <- contr.hypothesis(HcRep)
+  
+  # Fit model
+  fit <- lmer(
+    log_RT ~ Singleton * Task + scale(Awareness) * Singleton +
+      (Singleton | ID),
+    data = d,
+    control = lmerControl(optimizer = "bobyqa")
+  )
+  
+  if (isSingular(fit)) {
+    fit <- update(fit,
+                  . ~ . - (Singleton | ID) + (1|Singleton),
+                  control = lmerControl(optimizer = "bobyqa")
+    )
+  }
+  ps[i] <-pt(summary(fit)$coefficients[6, 4], summary(fit)$coefficients[6, 3], lower.tail = F) # Raw summary
+}
+
 # Plot results:
-comps<-comparisons(fit, variables = "Singleton", newdata = datagrid(Task = unique,
+comps<-comparisons(fit_list[["fit_aw"]], variables = "Singleton", newdata = datagrid(Task = unique,
                                                                 Singleton = c("High", "Low"),
                                                                 ID = NA,
-                                                                Awareness2 = seq(0, 1, .01)),
+                                                                Awareness = seq(0, 1, .01)),
                comparison = function(hi, lo) exp(hi + (sigma(fit)^2)/2) - exp(lo + (sigma(fit)^2)/2),
-               re.form = NA) %>%
+               re.form = NA, by = c("Awareness", "Task")) %>%
   filter(contrast == "Low, High") %>%
   mutate(estimate = -estimate,
          conf.high = -conf.high,
          conf.low = - conf.low)
 
+
 raw_data <- d %>%
   summarise(rt = mean(rt), .by = c("Task", "ID", "Singleton")) %>%
   spread(Singleton, rt) %>%
   mutate(VMAC = High - Low) %>%
-  left_join(., awareness, by = "ID") %>%
-  mutate(Task = task)
-
+  left_join(., awareness[,c("Awareness2", "ID")]) %>%
+  dplyr::rename("Awareness" = "Awareness2")
 
 vmac_sum <- summarySE(
   data = raw_data,
@@ -351,22 +452,22 @@ vmac_sum <- summarySE(
 
 awareness_sum <- summarySE(
   data = raw_data,
-  measurevar = "Awareness2",
+  measurevar = "Awareness",
   groupvars = "Task"
 ) %>%
   mutate(CI_aw = ci) %>%
-  select(Task, Awareness2, CI_aw)
+  select(Task, Awareness, CI_aw)
 
 sum_data <- left_join(vmac_sum, awareness_sum, by = "Task")
 
-fig2c <- ggplot(comps, aes(Awareness2, estimate, color = Task)) +
+fig2c <- ggplot(comps, aes(Awareness, estimate, color = Task)) +
   geom_errorbar(data = sum_data, aes(y = VMAC, ymin = VMAC-CI_VMAC, ymax = VMAC+CI_VMAC), width = 0) +
-  geom_errorbarh(data = sum_data, aes(y = VMAC,xmin = Awareness2-CI_aw, xmax = Awareness2+CI_aw), height = 0) +
+  geom_errorbarh(data = sum_data, aes(y = VMAC,xmin = Awareness-CI_aw, xmax = Awareness+CI_aw), height = 0) +
   geom_line(aes(linetype = Task), size = 1) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high, fill = Task), color = NA, alpha = .2) +
   geom_point(data = raw_data, aes(y = VMAC), alpha = .3, size = 1) +
   geom_hline(yintercept = 0, linetype = "dashed") +
-  geom_point(data = sum_data, aes(y = VMAC, x = Awareness2, fill = Task), alpha = 1, size = 2.2, shape = 21) +
+  geom_point(data = sum_data, aes(y = VMAC, x = Awareness, fill = Task), alpha = 1, size = 2.2, shape = 21) +
   scale_color_manual(values = c("C" = "#258da5", "L" = "#C15F1E"), # Customize colors
                      labels = c("C" = "Color", "L" = "Location")) + # Custom labels
   scale_fill_manual(
@@ -413,3 +514,9 @@ if(!file.exists("Output/plots/fig2.pdf")) {
   ggsave(plot=fig2, device = "pdf", filename=here("Output/plots/fig2.pdf"),
          units = "cm", height = 14, width = 17)
 }
+
+if(!file.exists("Output/plots/fig2.png")) {
+  ggsave(plot=fig2, filename=here::here("Output/plots/fig2.png"),
+         units = "cm", height = 14, width = 17)
+}
+
