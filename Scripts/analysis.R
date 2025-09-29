@@ -100,6 +100,24 @@ pt(summary(fit)$coefficients[5, 4], summary(fit)$coefficients[5, 3], lower.tail 
 # Save for later
 fit_list[["RTs_VST"]] <- fit
 
+# Get predictions
+preds_df <- avg_predictions(
+  fit_list[["RTs_VST"]],
+  transform = \(x) exp(x + sigma(fit_list[["RTs_VST"]])^2),
+  by = "Singleton"
+)
+
+# Get conditional effects
+comps_df <- avg_comparisons(
+  fit_list[["RTs_VST"]],
+  variables = list(Singleton = "revsequential"),
+  comparison = \(hi, lo) {
+    exp(hi + sigma(fit_list[["RTs_VST"]])^2) -
+      exp(lo + sigma(fit_list[["RTs_VST"]])^2)
+  },
+  by = "Task",
+)
+
 # Reliability of VMAC effect:
 rel <- multi.s::splith(
   outcome = "rt",
@@ -330,19 +348,21 @@ fig2b <- marginaleffects::avg_predictions(betareg(Awareness2~scale(Awareness1)*T
 
 # Load data
 d <- raw %>%
-  filter(Phase == "Rewarded", rt > 150, rt < 1800, correct == 1, !ID %in% c(exclusions), Block_num > 2)
+  filter(Singleton != "Absent", Phase == "Rewarded", rt > 150, rt < 1800, correct == 1, !ID %in% c(exclusions), Block_num > 2)
 
 d <- left_join(d, awareness[,c("Awareness2", "ID")])
 d$Awareness <- d$Awareness2
 
 # Set contrasts
 d$Singleton <-
-  factor(d$Singleton, levels = c("High", "Low", "Absent"))
+  factor(d$Singleton, levels = c("High", "Low"))
 d$Task <- factor(d$task, levels = c("C", "L"))
 contrasts(d$Task) <- contr.sum(2)
 colnames(contrasts(d$Task)) <- c("c_vs_L")
 d$log_RT <- log(d$rt)
-contrasts(d$Singleton) <- contr.hypothesis(HcRep)
+contrasts(d$Singleton) <- contr.sum(2)
+colnames(contrasts(d$Singleton)) <- c("VMAC")
+
 
 # Fit model
 fit <-
@@ -356,22 +376,10 @@ fit <-
 summary(fit)
 
 # one-tailed p-value for VMAC:Task
-pt(summary(fit)$coefficients[6, 4], summary(fit)$coefficients[6, 3], lower.tail = F) # Raw summary
+pt(summary(fit)$coefficients[5, 4], summary(fit)$coefficients[5, 3], lower.tail = F) # Raw summary
 
 # Save for later
 fit_list[["fit_aw"]] <- fit
-
-# VMAC effect in both groups after controlling for awareness. 
-(compsAw_df <- avg_comparisons(
-  fit_list[["fit_aw"]],
-  variables = list(Singleton = "revsequential"),
-  newdata = datagrid(
-    Awareness = 0,
-    Task = unique
-  ),
-  comparison = \(hi, lo) exp(hi + sigma(fit_list[["fit_aw"]])^2) - exp(lo + sigma(fit_list[["fit_aw"]])^2),
-  by = "Task",
-))
 
 # Non-preregistered robustness test:
 ps <- numeric(3)
@@ -379,7 +387,8 @@ ps <- numeric(3)
 for (i in 1:3) {
   
   d <- raw %>%
-    filter(Phase == "Rewarded", rt > 150, rt < 1800, correct == 1, !ID %in% c(exclusions))
+    filter(Singleton != "Absent", Phase == "Rewarded", rt > 150, rt < 1800, correct == 1, !ID %in% c(exclusions), Block_num > 2)
+  
   
   if (i == 1) {
     d <- left_join(d, awareness[,c("Awareness2", "Confidence2", "ID")])
@@ -398,17 +407,17 @@ for (i in 1:3) {
   
   # Set contrasts
   d$Singleton <-
-    factor(d$Singleton, levels = c("High", "Low", "Absent"))
+    factor(d$Singleton, levels = c("High", "Low"))
   d$Task <- factor(d$task, levels = c("C", "L"))
-  contrasts(d$Task) <- contr.sum(2)
+  contrasts(d$Task) <- contr.sum(2)/2
   colnames(contrasts(d$Task)) <- c("c_vs_L")
   d$log_RT <- log(d$rt)
-  contrasts(d$Singleton) <- contr.hypothesis(HcRep)
+  contrasts(d$Singleton) <- contr.sum(2)/2
   
   # Fit model
   fit <- lmer(
     log_RT ~ Singleton * Task + scale(Awareness) * Singleton +
-      (Singleton | ID),
+      (1 | ID),
     data = d,
     control = lmerControl(optimizer = "bobyqa")
   )
@@ -419,7 +428,7 @@ for (i in 1:3) {
                   control = lmerControl(optimizer = "bobyqa")
     )
   }
-  ps[i] <-pt(summary(fit)$coefficients[6, 4], summary(fit)$coefficients[6, 3], lower.tail = F) # Raw summary
+  ps[i] <-pt(summary(fit)$coefficients[5, 4], summary(fit)$coefficients[5, 3], lower.tail = F) # Raw summary
 }
 
 # Plot results:

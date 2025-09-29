@@ -305,4 +305,3 @@ get_least_non_significant <- function(model) {
 
   return(nonsig[selected])
 }
-
