@@ -1,0 +1,520 @@
+---
+title: "The role of selective attention in value-modulated attentional capture"
+shorttitle: "THE ROLE OF SELECTIVE ATTENTION IN VMAC"
+author:
+  - name: Francisco Garre-Frutos
+    orcid: 0000-0001-5052-066X
+    email: fgfrutos@ugr.es
+    affiliation:
+      - ref: 1
+    corresponding: true
+    roles:
+      - conceptualization
+      - data curation
+      - formal Analysis
+      - investigation
+      - methodology
+      - resources 
+      - Validation 
+      - software 
+      - visualization 
+      - writing - original draft 
+      - writing - review & editing
+  - name: Miguel A. Vadillo
+    orcid: 0000-0001-8421-816X
+    affiliation:
+      - ref: 2
+    roles:
+    - conceptualization 
+    - funding acquisition
+    - project administration 
+    - supervision 
+    - writing - review & editing 
+  - name: Jan Theeuwes
+    orcid: 0000-0002-5849-7721
+    affiliation:
+      - ref: 3
+      - ref: 4
+    roles:
+    - conceptualization 
+    - funding acquisition
+    - project administration 
+    - supervision 
+    - writing - review & editing 
+    
+  - name: Dirk Van Moorselaar
+    orcid: 0000-0002-0491-1317
+    affiliation:
+      - ref: 5
+    roles:
+    - conceptualization 
+    - funding acquisition 
+    - supervision 
+    - writing - review & editing
+  - name: Juan Lupiáñez
+    orcid: 0000-0001-6157-9894
+    affiliation:
+      - ref: 1
+    corresponding: false
+    roles:
+    - Conceptualization 
+    - Funding acquisition
+    - project administration 
+    - Supervision 
+    - Writing - review & editing
+affiliations:
+  - id: 1
+    name: Department of Experimental Psychology and  Mind, Brain, and Behavior Research Center (CIMCYC), University of Granada, Granada, Spain
+  - id: 2
+    name: Department of Basic Psychology, Autonomous University of Madrid, Madrid, Spain
+  - id: 3
+    name: Institute Brain and Behavior Amsterdam, Department of Experimental and Applied Psychology, Vrije Universiteit Amsterdam, Amsterdam, the Netherlands
+  - id: 4
+    name: William James Center for Research, ISPA-Instituto Universitario, Lisbon, Portugal
+  - id: 5
+    name: Faculty of Social and Behavioral Sciences, Experimental Psychology, Helmholtz Institute, Utrecht University, Utrecht, the Netherlands
+    
+blank-lines-above-author-note: 2
+
+abstract: "Stimuli that reliably predict reward can increase their capacity to capture attention. This Value‑Modulated Attentional Capture (VMAC) is typically viewed as independent of task goals or physical salience, arising from Pavlovian learning. However, recent evidence suggests that the awareness of the stimulus‑reward contingency may be necessary during the acquisition of such attentional biases, although the underlying mechanism remains unclear. One possibility is that awareness mediates the learning process of VMAC by directing selective attention toward the reward-predictive feature. The present preregistered study tested whether reward‑related attentional biases arise primarily from such selective attention, independently of awareness. Participants performed a visual search task in which one of two singleton distractors—one predicting high reward, the other low reward—appeared on a subset of trials. Selective attention to the reward‑predictive feature (distractor color) was manipulated between groups: In some trials, one group reported the distractor’s color, while the other group reported an irrelevant feature (its location). Otherwise, the stimulus–reward contingencies remained identical for both groups. VMAC, as measured by slower response times for the high‑value compared to the low‑value distractor, emerged only in the group that reported the color. Critically, the previous result cannot be explained by individual differences in awareness. These findings demonstrate a causal role of selective attention in the acquisition of reward-related attentional biases."
+
+keywords: [attentional capture, learning, reward, selective attention, awareness]
+author-note:
+  disclosures:
+    study-registration: "Hypothesis, design and data analysis for the present study were preregistered before data collection at [https://osf.io/f3bm8](https://osf.io/f3bm8)."
+    authorship-agreements: ~
+suppress-impact-statement: false
+floatsintext: true
+mask: true
+numbered-lines: false
+suppress-title-page: true
+link-citations: true
+draft-date: false
+bibliography: references.bib
+lang: en
+language:
+  citation-last-author-separator: "and"
+  citation-masked-author: "Masked Citation"
+  citation-masked-date: "n.d."
+  citation-masked-title: "Masked Title"
+  email: "Email"
+  title-block-author-note: "Author Note"
+  title-block-correspondence-note: "Correspondence concerning this article should be addressed to"
+  title-block-role-introduction: "Author roles were classified using the Contributor Role Taxonomy (CRediT; [credit.niso.org](https://credit.niso.org)) as follows:"
+format:
+  apaquarto-docx: 
+    toc: false
+    convert-graphics: true
+    dpi: 300
+    filters: 
+      - fig.lua 
+  apaquarto-html: 
+    toc: true
+  apaquarto-typst: 
+    keep-typ: true
+    list-of-figures: false
+    list-of-tables: false
+    toc: false
+    papersize: "us-letter"
+  apaquarto-pdf:
+    include-in-header:
+      text: |
+        % Restaurar sangría APA al suprimir la title page
+        \usepackage{indentfirst}        % indentar también el primer párrafo tras sección
+        \setlength{\parindent}{0.5in}   % sangría APA
+        \setlength{\parskip}{0pt}       % sin espacio entre párrafos
+    citeproc: false
+    filters:
+      - at: pre-quarto
+        path: _extensions/andrewheiss/wordcount/citeproc.lua
+      - at: pre-quarto
+        path: _extensions/andrewheiss/wordcount/wordcount.lua
+      - fig.lua
+    documentmode: man
+    keep-tex: true
+---
+
+:::{.no-count}
+
+```{r analysis}
+#| echo: false
+#| output: false
+if (!require(pacman)) {
+  install.packages(pacman)
+  library(pacman)
+}
+p_load(here)
+
+source(here("Scripts/functions.R"))
+source(here("Scripts/analysis.R"))
+```
+
+```{r report}
+#| warning: false
+#| echo: false
+#| output: false
+
+# Reporting incorrect responses and outlier filter:
+raw <- raw %>% filter(Phase == "Rewarded")
+incorrect <- round((nrow(raw[which(raw$correct == 0), ]) / nrow(raw)) * 100, 2)
+outlier <- round(
+  (nrow(raw[which(raw$correct == 1 & (raw$rt < 250 | raw$rt > 1800)), ]) /
+    nrow(raw[which(raw$correct == 1), ])) *
+    100,
+  2
+)
+
+# Reporting reliability:
+latex_rel <- paste0(
+  "$r_{\\text{sb}} = ",
+  format(round(rel$spearmanbrown, 2), nsmall = 2),
+  ", \\;95\\%\\,\\text{CI}[",
+  format(round(rel$SB_low, 2), nsmall = 2),
+  ", ",
+  format(round(rel$SB_high, 2), nsmall = 2),
+  "]$"
+)
+
+# Results from visual search task ----
+# Get predictions
+# Get latex code
+digits <- 1
+preds_latex <- vector()
+
+for (i in seq_len(nrow(preds_df))) {
+  preds_latex[i] <- sprintf(
+    "$M_{\\mathrm{%s}} = %s,\\;95\\%%\\,\\mathrm{CI}[%s, %s]$",
+    preds_df[i, 1],
+    format(round(preds_df[i, 2], digits), nsmall = digits),
+    format(round(preds_df[i, 5], digits), nsmall = digits),
+    format(round(preds_df[i, 6], digits), nsmall = digits)
+  )
+}
+
+# Get conditional VMAC and AC effects for each group
+# Get latex code
+digits <- 1
+comps_latex <- vector()
+
+for (i in seq_len(nrow(comps_df))) {
+  comps_latex[i] <- sprintf(
+    "$M_{\\mathrm{%s}} = %s,\\;95\\%%\\,\\mathrm{CI}[%s, %s]$",
+    ifelse(i %in% 1:2, "VMAC", "AC"),
+    format(round(comps_df[i, 4], digits), nsmall = digits),
+    format(round(comps_df[i, 9], digits), nsmall = digits),
+    format(round(comps_df[i, 10], digits), nsmall = digits)
+  )
+}
+
+# Results (accuracy) ----
+acc_latex <- avg_predictions(fit_list[["ACC_VST"]]) %>%
+  mutate(
+    latex = paste0(
+      "$M_{\\text{Accuracy}} = ",
+      format(round(estimate, 3), nsmall = 3),
+      ", \\;95\\%\\,\\text{CI}[",
+      format(round(conf.low, 3), nsmall = 3),
+      ", ",
+      format(round(conf.high, 3), nsmall = 3),
+      "]$"
+    )
+  ) %>%
+  pull(latex)
+
+
+# Results (report task) ----
+acc_report_latex <- avg_predictions(fit_list[["REPORT"]]) %>%
+  mutate(
+    latex = paste0(
+      "$M_{\\text{Accuracy}} = ",
+      format(round(estimate, 3), nsmall = 3),
+      ", \\;95\\%\\,\\text{CI}[",
+      format(round(conf.low, 3), nsmall = 3),
+      ", ",
+      format(round(conf.high, 3), nsmall = 3),
+      "]$"
+    )
+  ) %>%
+  pull(latex)
+
+# Power: ----
+power <- readRDS("Output/powerVMAC.rds")
+
+# Awareness ----
+
+# Get conditional VMAC and AC effects for each group
+compsAw_df <- comparisons(
+  fit_list[["fit_aw"]],
+  variables = "Singleton",
+  newdata = datagrid(
+    Task = unique,
+    Singleton = c("High", "Low"),
+    ID = NA,
+    Awareness = seq(0, 1, .01)
+  ),
+  comparison = function(hi, lo) {
+    exp(hi + (sigma(fit_list[["fit_aw"]])^2) / 2) -
+      exp(lo + (sigma(fit_list[["fit_aw"]])^2) / 2)
+  },
+  re.form = NA,
+  by = c("Awareness", "Task")
+) %>%
+  filter(contrast == "Low, High", Awareness == 0.5)
+
+comps_latex2 <- vector()
+
+for (i in seq_len(nrow(compsAw_df))) {
+  comps_latex2[i] <- sprintf(
+    "$M_{\\mathrm{%s}} = %s,\\;95\\%%\\,\\mathrm{CI}[%s, %s]$",
+    ifelse(i %in% 1:2, "VMAC", "VMAC"),
+    format(round(-compsAw_df[i, 5], digits), nsmall = digits),
+    format(round(-compsAw_df[i, 11], digits), nsmall = digits),
+    format(round(-compsAw_df[i, 10], digits), nsmall = digits)
+  )
+}
+
+```
+::: 
+
+\section*{Abstract}
+Stimuli that reliably predict reward can increase their capacity to capture attention. This Value‑Modulated Attentional Capture (VMAC) is typically viewed as independent of task goals or physical salience, arising from Pavlovian learning. However, recent evidence suggests that the awareness of the stimulus‑reward contingency may be necessary during the acquisition of such attentional biases, although the underlying mechanism remains unclear. One possibility is that awareness mediates the learning process of VMAC by directing selective attention toward the reward-predictive feature. The present preregistered study tested whether reward‑related attentional biases arise primarily from such selective attention, independently of awareness. Participants performed a visual search task in which one of two singleton distractors—one predicting high reward, the other low reward—appeared on a subset of trials. Selective attention to the reward‑predictive feature (distractor color) was manipulated between groups: In some trials, one group reported the distractor’s color, while the other group reported an irrelevant feature (its location). Otherwise, the stimulus–reward contingencies remained identical for both groups. VMAC, as measured by slower response times for the high‑value compared to the low‑value distractor, emerged only in the group that reported the color. Critically, the previous result cannot be explained by individual differences in awareness. These findings demonstrate a causal role of selective attention in the acquisition of reward-related attentional biases.
+
+\bigskip
+\noindent\textit{Keywords:} attentional capture, learning, reward, selective attention, awareness
+
+
+\newpage
+
+# The role of selective attention in value-modulated attentional capture
+
+When individuals learn to associate a specific stimulus feature with reward, this stimulus often becomes a stronger distractor in visual search tasks [@anderson2021; @failing2018]. The weight of evidence suggests that the learning process underlying this phenomenon is Pavlovian in nature and thus depends on the history of stimulus–reward pairings [e.g., @bucker2017; @mine2018]. One of the clearest demonstrations of this Pavlovian account is provided by @lepelley2015, who used a modified version of the additional singleton task [@theeuwes1992; @theeuwes1994]. In their study, participants searched for a target defined by one feature (shape), while a uniquely colored distractor could appear on some trials. Critically, rewards were contingent on the distractor’s color—one color predicted a high reward and the other low reward magnitude. With these settings, Le Pelley and colleagues found that participants were slower to respond when the high-reward singleton distractor was present compared with when the low-reward singleton distractor appeared, even when slow responses led to the omission of reward.
+
+Once established, this value-modulated attentional capture [VMAC\; @anderson2011b] exhibits strong features of automaticity. For example, it is largely independent of the observer’s goals [@anderson2011; @lepelley2015], persists under extinction [@garre-frutos2024; @watson2019], outcome devaluation [@watson2022; @detommaso2017; @detommaso2021], and the mere passage of time, with VMAC persisting weeks [@anderson2019_testretest]—and even over a year [@anderson2013]—after the original learning episodes. Furthermore, VMAC is still observed in conditions where attending to the reward-predictive distractor is clearly counterproductive, such as when gazing at the distractor leads to the omission of a potential reward [@failing2015; @pearson2016]. Indeed, even when participants actively try to prevent capture by the high-value distractor [@pearson2020; @pearson2021], they still attend to it despite being fully aware of the omission schedule [@pearson2015]. Similar conclusions are often drawn about how learning unfolds, as it is frequently assumed that learning can occur implicitly [e.g., @anderson2016; @anderson2021; @failing2018]. For instance, whereas early paradigms to study VMAC established feature–reward associations in a separate training stage where the reward-predictive feature is task-relevant [@anderson2011], subsequent research has shown that VMAC can be acquired even when the reward-predictive feature is never task-relevant [@mine2015; @mine2018], response-independent [@bucker2017; @bucker2018], or even detrimental for performance, as in the paradigm developed by @lepelley2015.
+
+Further support for an implicit learning account comes from reports showing that participants often fail to identify the correct feature-reward contingency [@anderson2015; @anderson2013; @gregoire2019; @theeuwes2012], and sometimes VMAC is observed even among those classified as “unaware” [@lepelley2015; @bourgeois2017; @gregoire2019; @gregoire2021]. However, this evidence is not as clear-cut as it may seem: other studies have found that only participants aware of the association show VMAC [@failing2017; @garre-frutos2025a; @lepelley2017; @meyer2020]. An interesting case is the study by @failing2017, who conducted six experiments on the boundary conditions of VMAC. They used a procedure similar to @lepelley2015, but the reward-predictive color distractors were not singletons; instead, they were presented among other colored distractors [e.g., @anderson2011]. Importantly, @failing2017 instructed participants about the color–reward contingencies in all but the last two experiments. In Experiment 5, after four successful replications of the typical VMAC effect, they failed to replicate it when participants were not informed about the contingencies. In Experiment 6, they tried to facilitate learning by reducing the number of distractor colors, and showed that only participants who correctly identified the feature–reward contingencies exhibited a VMAC effect.
+
+While these findings might seem to imply that awareness is necessary for learning, @failing2017 argued that reducing the number of distractor colors may have merely facilitated selective attention to the reward-predictive feature, thereby enhancing learning. However, given that VMAC emerged only among participants classified as aware, and selective attention was not manipulated, such a conclusion is not warranted. A subsequent study by @garre-frutos2025a offered a more direct test: when instructions about the contingencies were manipulated between groups, only instructed participants showed evidence of learning. Crucially, because in @garre-frutos2025a the reward-predictive feature was always a salient singleton distractor, selective attention alone cannot explain the results, which suggest that awareness should play a direct role in learning.
+
+Viewed together, this body of evidence may appear contradictory, but it is well established that human Pavlovian learning is strongly affected by instructions and awareness of the contingencies [@lovibond2011; @lovibond2002; @mertens2016; @mertens2020; @weidemann2016]. Some theoretical accounts even propose that Pavlovian learning could be entirely propositional [@mitchell2009], making awareness a necessary condition. Still, while VMAC is a clear example of how learning shapes attentional control, the relationship is not one-way: attention also plays a crucial role in learning [@niv2015; @pearce1980; @mackintosh1975]. Hence, the interpretation raised by @failing2017 is not unreasonable, in that learning may depend on the kind of attention directed toward the predictive feature [@jiménez1999]. Indeed, a similar result is common in other learned attentional biases, such as visual statistical learning, where selective spatial attention to predictive information is widely considered necessary for learning to occur [@duncan2024; @golan2024; @jiang2001; @vadillo2020; @vadillo2024].
+
+A parsimonious alternative account is that awareness may influence learning in VMAC indirectly by encouraging selective attention toward the specific reward-predictive feature of the salient distractor. For instance, although distractors in the additional singleton task capture attention [@theeuwes1992; @theeuwes1994], participants are never explicitly required to selectively attend to any specific singleton feature, either location, shape, or color, as it is not directly task-relevant. In @garre-frutos2025a, instructions (and awareness) about stimulus–reward contingencies might direct attention specifically toward the reward-associated feature, potentially making such selective attention both necessary and sufficient for learning. If selective attention is crucial, any manipulation compelling participants to attend to the reward-associated feature (color) rather than reward-irrelevant features (e.g., location) should elicit the learning of VMAC, independently of awareness.
+
+
+## The Present Study
+
+This preregistered study tested the causal role of selective attention in the learning process underlying VMAC. We followed the general procedure of @garre-frutos2025a, but instead of manipulating instructions we added a concurrent task designed to direct selective attention to distinct distractor dimensions. In a between-participants manipulation, one group was asked to report the color of the singleton distractor and the other reported its location [cf. @gao2020]. This design contrasted attention to a reward-associated, task-irrelevant feature (color) with attention to a reward-irrelevant feature (location), without informing participants of the color–reward association [conceptually similar to @jiménez1999].
+
+We hypothesized a dissociation in VMAC based on the concurrent task (color vs. location). We predicted that only the color-report group would show a VMAC effect, and that this effect would be independent of individual differences in awareness. Specifically, we expected:
+
+- **H1:** Replication of the typical attentional-capture effect in the additional-singleton task.
+
+- **H2:**
+
+  - **H2~1~:** The VMAC effect would be significantly larger in the color group than in the location group.
+  
+  - **H2~2~:** The VMAC effect would be observed only among participants who selectively attend to color.
+  
+- **H3:** Between-group differences in VMAC (H2) would not be explained by individual differences in awareness.
+
+:::{.no-count}
+
+# Methods
+
+## Participants
+
+We performed a simulation-based power analysis (fully reported in the preregistration; <https://osf.io/f3bm8>) for the critical Group (color vs. location) $\times$ Distractor (high- vs. low-value) interaction, based on a similar effect from the linear mixed model (LMM) reported in @garre-frutos2025a. Specifically, in Experiment 2, the authors observed a significant interaction between Group (instructions vs. no instructions about the contingencies) and Distractor (high- vs. low-value) on response times (RTs), with only the instructed group showing a significant VMAC effect. Given that the present study is an extension of the same results, in similar settings and conditions, we used the same effect size to estimate the required sample size for 80% power to detect the critical interaction in our design. Importantly, given resource and time constraints for data collection, we preregistered two decisions to maximize power: (1) we excluded trials from the first block of the visual search task, as VMAC is typically not observed in this block [@garre-frutos2024; @garre-frutos2025a; @garre-frutos2025b]; and (2) given that we have our hypothesis about the direction of the effect, we used a one-tailed test (i.e., higher VMAC for the group tasked to report the color vs. location of the distractor) for the critical interaction, as specified in the preregistration, and following our hypotheses (H2~1~). Power was estimated using R [version 4.3.1\; @r_ref] and the *simr* package [@simr]. Simulations indicated that 70 participants per group would yield `r round(power[6, "mean"]*100)`% power ($\alpha = .05$).
+
+To account for potential exclusions, we collected data from 80 participants per group (*N* = 160). Following the preregistered protocol, seven participants were excluded due to low accuracy (< 70%), RTs deviating ±3 SD from the group mean, or poor performance in the concurrent task[^1]. The final sample included 153 participants ($n_{\text{color}} = 77$, $n_{\text{location}} = 76$; 117 self-identified as women; $M_{\text{age}} = 21.4$, $SD = 4.2$).
+
+[^1]: As described below, participants in the visual search task completed 288 trials, but were required to report the distractor’s location or color on only 12–24 trials (randomly across participants). Rather than setting a fixed accuracy cutoff, we included only those participants performing above chance on the concurrent task to ensure appropriate performance. As preregistered, this threshold was determined using a binomial test with $p = 0.5$. For example, a participant who completed 12 report trials would need at least 10 correct responses ($p = .036$) to meet the threshold, whereas a participant with 18 trials would require at least 14 correct responses ($p = .031$). Thus, the accuracy cutoff varies between 75% and 83%, depending on the number of report trials completed.
+
+## Stimuli, Materials, and Procedure
+
+The materials and procedure were based on @garre-frutos2025a. The study was conducted online, consistent with prior work using this task [@albertella2019; @albertella2020; @lepelley2022; @liu2021; @garre-frutos2024; @garre-frutos2025a; @watson2020; @gonzalez2025]. The task was programmed in jsPsych [@leeuw2023] and hosted on JATOS [@lange2015]. To control for differences in participants' distance from the screen, we scaled stimulus size to screen distance using the virtual chinrest developed by @li2020. Before starting the main task, participants underwent a calibration procedure to estimate screen distance. They adjusted the size of a rectangle on their screen to match a standard-sized object (e.g., a credit card or driver's license). Then, they performed a blind spot measurement by covering their right eye and focusing their left eye on a central placeholder while a red circle moved leftward, pressing the space bar when the circle disappeared. This process was repeated five times, and the average was used to estimate screen distance.
+
+As depicted in @fig-1, each trial started with a central fixation cross, followed by a search display containing six shapes (2.3° × 2.3° visual angle) arranged evenly around an imaginary circle with a diameter of 10.1°. The target was a diamond-shaped stimulus containing a line segment oriented either horizontally or vertically, and the non-targets were five circles each containing a line segment tilted 45° to the left or right. On most trials, one of the circles appeared as a uniquely colored singleton distractor (orange/blue or pink/green, counterbalanced), which could be either a high- or low-value color, counterbalanced within each pair. The remaining shapes were gray. The positions of the target and distractor varied randomly in each trial. Participants were instructed to find and report the orientation of the line segment inside the diamond as quickly as possible by pressing the \<b\> key for horizontal or the \<j\> key for vertical. The search display remained on screen until the participant responded or 2000 ms had elapsed. Feedback indicating points won or lost was displayed for 700 ms, and the inter-trial interval was 1200 ms.
+
+```{r fig-1}
+#| label: fig-1
+#| fig-align: center
+#| fig-cap: Schematic representation of the task.
+#| apa-note: Example of the sequence of events in the experimental task. Participants could earn points based on performance, and when a high-value singleton appeared in the display, points were multiplied by 10 (a bonus trial). In some trials, participants were presented with the letter 'R', which signaled that participants had to report the color or the location (as a function of the assigned group) of the distractor in the preceding trial.
+#| fig-pos: "htpb"
+#| fig-height: 1
+knitr::include_graphics("pre_registation/figure_3.png")
+```
+
+The task consisted of six blocks of 48 trials (20 high-value singleton trials, 20 low-value singleton trials, and 8 distractor-absent trials). Occasionally, participants encountered report trials, indicated by an "R" presented for 1000 ms immediately after the feedback display. Report trials occurred infrequently (two to four per block) with the constraint that at least one appeared in each half of the block; they were restricted to distractor-present trials. On report trials, participants indicated either the side (left or right) of the display on which the distractor had appeared (report location group) or the distractor’s color (report color group). In both groups, responses were made with the \<c\> and \<m\> keys, which always corresponded to the left and right on-screen response options, respectively[^2]. Correct responses in the report task earned 2000 points, whereas incorrect responses lost 2000 points; feedback on report performance was provided at the end of each block. In the visual search task, participants received 0.1 points for every millisecond their RTs were below 1000 ms on low-value distractor trials, and the number of points earned was multiplied by 10 on high-value distractor trials. No points were earned for RTs exceeding 1000 ms, and incorrect responses resulted in a loss of points equivalent to the potential gain for that trial. With this manipulation, participants distracted by the high-value singleton would acquire significantly fewer points, as the number of points earned in a given trial is directly proportional to performance.
+
+[^2]: For both groups, response keys were always mapped to the same relative positions on the keyboard (e.g., \<c\> = left, \<m\> = right). In the color group, either distractor color could appear on the left or right side of the screen during report trials (see @fig-1). Because the singleton distractor’s position was randomized on every search trial, there was no systematic association between report responses (color or side) and distractor location. In other words, location and singleton color were completely independent in both groups.
+
+After the calibration phase, participants first completed 20 practice trials without any singleton distractor to familiarize themselves with the task. They then performed 10 trials with both the visual search task and the report task (after every trial). In this practice stage, the search display was presented for 10 seconds. After this, participants performed 20 additional trials at normal speed. Subsequently, they entered the visual search task, where instructions emphasized that faster and correct responses result in more points, while incorrect responses result in point losses. Importantly, participants were not informed about the association between the distractor color and reward value. They were only reminded about the distractor's in relation to the report task.
+
+At the end of the experiment, participants completed an awareness test to assess their knowledge of the color-reward contingencies using a Visual Analog Scale [VAS\; @Reips2008], following the procedure implemented by @garre-frutos2025a. They were instructed to respond based on their impressions during the task, avoiding post-hoc interpretations. First, participants rated the extent to which they believed distractor color influenced the likelihood of "bonus trials" (contingency belief), with the scale ranging from 0 ("I don't believe color makes any difference") to 100 ("I believe color completely determines the likelihood of bonus trials"). They then estimated the relative proportion of bonus trials associated with each color (contingency awareness). To do this, they were presented with another VAS showing the high- and low-rated distractors with endpoints indicating the percentage of bonus trials estimated to be associated with each color. Participants adjusted a dot along the VAS to represent their estimated likelihood, which updated the displayed percentages accordingly (e.g., a position closer to the high-value color might show a 70% likelihood for the high-value distractor and 30% for the low-value singleton). After providing these ratings, participants indicated their confidence using a confidence VAS ranging from 0 ("no confidence") to 100 ("very confident"). Finally, participants had the opportunity to provide a free-form qualitative description of any patterns they noticed in the likelihood of bonus trials; this response was collected only for exploratory purposes.
+
+## Data analysis
+
+Unless noted otherwise, all analyses followed our preregistered plan, including data selection criteria, significance thresholds, and the directionality of hypotheses. Data were analyzed using R, version 4.3.1 [@r_ref][^3].
+
+[^3]: R packages: *lme4* [@lme4], *betareg* [@betareg], *marginaleffects* [@R-marginaleffects], and *tidyverse* [@tidyverse].
+
+### Report task
+
+We first analyzed performance in the report task. To that aim, we compared the two groups on report-task accuracy by fitting a multilevel logistic regression [@jaeger2008] with a Group predictor and a by-participant random intercept.
+
+### Visual search task
+
+The main dependent variable was RTs. We removed RTs considered outliers (RTs < 150 or > 1800 ms; `r outlier`%), incorrect responses (`r incorrect`%) and, following our power analysis, we removed all trials from the first block. Log-transformed RTs were analyzed using an LMM including predictors Singleton (high-value, low-value, absent distractor), Group (color, location), and their interaction. Group was coded using deviation coding. For Singleton, we used repeated contrasts: one contrast for high-value vs. low-value (VMAC effect) and another for low-value vs. absent (Attentional Capture effect; AC effect). This strategy allowed us to test specific hypotheses regarding each theoretically relevant contrast [@schad2020][^4]. We tested for significance using the preregistered criteria, assuming an $\alpha = 0.05$ and two-sided contrast. The only exception was the interaction between Group and the VMAC effect, for which we used a one-sided contrast reflecting our directional hypothesis (H2~1~). If a significant Group $\times$ VMAC interaction was observed, we computed the conditional VMAC effect for each group. The model's formula, as implemented in the *lme4* R package [@lme4], was as follows:
+
+$$ 
+\log(\text{RT}) \sim \text{Group} \times \text{Singleton} + (\text{Singleton} \ | \ \text{ID})
+$$
+
+Regarding the random-effects structure, we first fit the maximum random-effects structure justified by our design [@barr2013], including a random slope for the Singleton predictor. In cases of convergence problems or singular fits, we reduced the random-effects structure [@bates2015; @matuschek2017], by dropping the random slope for Singleton. Finally, because between-group comparisons are possibly attenuated by measurement error [@karvelis; @wiernik2020; but see @parsons2018], we calculated the split-half reliability [@parsons2021] of the VMAC effect for each group to inform potential attenuation in the critical between-group comparison.
+
+Finally, although we had no theoretical interest in task accuracy [which is usually near ceiling in similar tasks\; @garre-frutos2025a; @garre-frutos2025b; @watson2019], we analyzed accuracy to rule out a speed–accuracy trade-off. We fit a a multilevel logistic regression, using the same fixed-effects structure as in the RT LMM and the same strategy for selecting the random-effects structure.
+
+[^4]: Specifically, the fixed-effects structure of the LMM had five coefficients: one for Group, two for Singleton (high-value vs. low-value; low-value vs. absent), and two for the interactions between Group and each Singleton contrast. This allowed testing specific hypotheses instead of an omnibus test with no direct theoretical relevance.
+
+
+### Awareness tests
+
+Participants reported, using two VAS scales (coded 0–100), (1) their belief in the probability of a bonus trial depending on the distractor's color (*Contingency belief*), and (2) their estimate of the relative likelihood of receiving a bonus trial based on the distractor's color (*Contingency awareness*). Because both measures are bounded between 0 and 100, we used beta regression [@smithson2006][^5], including a Group predictor to test for mean differences across groups on each VAS.
+
+Each VAS response included an accompanying confidence rating to assess metacognitive validity. To examine the validity of the awareness measures as indicators of explicit knowledge of the feature–reward contingency, we fit the beta-regression models separately for each group, incorporating confidence ratings as predictors. A positive relationship between confidence and performance on the awareness measures would support their validity. Additionally, to evaluate whether the first awareness question predicts the second, we employed the same beta-regression approach.
+
+As preregistered, interpreting H2 as the causal effect of selective attention on learning required no between-group differences in awareness (H3). To that aim, we tested whether controlling for these individual differences eliminated the Group $\times$ VMAC interaction by including the awareness response as a covariate in the RT model described above. To simplify this model, we excluded distractor-absent trials. Because we had two awareness measures, if these measures showed convergent validity (e.g., contingency awareness predicts contingency belief), we used the second contingency awareness as the covariate, which is more similar to the measure employed by @garre-frutos2025a. 
+
+
+[^5]: As discussed by @smithson2006, beta regression assumes known boundaries in the dependent variable but cannot model responses at those exact boundaries. Following their recommendation, we applied a scaling transformation to avoid boundary values: $y' = [y' \cdot (N - 1) + 1/2] / N$.
+
+::: 
+
+# Results
+
+## Report task
+
+Accuracy was high (`r acc_report_latex`) and did not differ significantly between groups (*p* = `r round(get_least_non_significant(fit_list[["REPORT"]]), 3)`), suggesting that participants performed well on the secondary task.
+
+## Visual search task
+
+RTs analysis showed significant VMAC (`r report_coef(fit_list[["RTs_VST"]], "SingletonVMAC", term_name = c("VMAC"))`) and AC (`r report_coef(fit_list[["RTs_VST"]], "SingletonAC", term_name = c("AC"))`) effects (Figure [2](#fig-2) [A]{.figletter}), indicating that participants were slower in the presence of a high- (`r preds_latex[2]`) compared to a low-value distractor (`r preds_latex[1]`), and faster when no distractor was present (`r preds_latex[3]`). Critically, the Group predictor interacted significantly only with VMAC (`r report_coef(fit_list[["RTs_VST"]], "SingletonVMAC:Taskc_vs_L", term_name = c("VMAC", "Group"), one.sided = T)`), such that a significant VMAC effect was observed in the color group (`r comps_latex[1]`) but not in the location group (`r comps_latex[2]`)[^6]. No other effects reached significance (*ps* > `r round(get_least_non_significant(fit_list[["RTs_VST"]]), 3)`).
+
+:::{.no-count}
+
+```{r fig-2}
+#| label: fig-2
+#| fig-cap: Summary of results
+#| fig-pos: "htbp"
+#| apa-note: "**A**) Mean RTs in the visual search task. Bars and dots show condition means; error bars indicate within-subject 95% CIs [@morey2008]. **B**) Beta regression predictions for awareness results. Transparent dots are individual responses; lines and shaded areas show model predictions and 95% CIs, and solid dot points and error bars represent mean predicted responses at the group-level. **C**) RT analysis with contingency awareness as covariate. Transparent dots show individual VMAC scores; lines and shaded areas depict model predictions by task and awareness level. Solid, large dots and error bars show group means and 95% CIs. Note that both the selective attention manipulation and contingency awareness have independent effects on observed VMAC scores, showing that our results cannot be explained by individual differences in awareness."
+
+knitr::include_graphics("Output/plots/fig2.pdf")
+```
+
+:::
+
+Accuracy in the visual search task was high (`r acc_latex`) and none of the predictors reached significance (*ps* > `r round(get_least_non_significant(fit_list[["ACC_VST"]]), 3)`), indicating that the above results cannot be explained by a speed–accuracy trade-off.
+
+[^6]: Split-half reliability of the VMAC effect was low (`r latex_rel`) compared to previous studies using this task [@garre-frutos2024; @garre-frutos2025a], maybe because of the dual-task design. This suggests that between-groups differences are possibly attenuated by measurement error [@karvelis; @wiernik2020; but see @parsons2018].
+
+## Awareness
+
+Neither awareness measure differed significantly between groups (*ps* > 0.224), and the two awareness measures were significantly correlated ($\beta = 0.551,\ z = 6.632,\ p < 0.001$; Figure [2](#fig-2) [B]{.figletter}) with no significant group differences in this correlation (*p* = 0.444). Furthermore, while contingency awareness was positively associated with its corresponding confidence rating ($\beta = 0.579,\ z = 7.197,\ p < 0.001$; no group difference, *p* = 0.409), contingency belief was not (*ps* > 0.231). Overall, these results suggest convergent validity regarding explicit knowledge of the feature–reward contingency, particularly for contingency awareness.
+
+As preregistered, we repeated the analysis of RTs restricted to high- and low-value distractor trials, including contingency awareness and its interaction with VMAC as covariates. This analysis revealed a significant VMAC $\times$ Contingency Awareness interaction (`r report_coef(fit_list[["fit_aw"]], "SingletonVMAC:scale(Awareness)", term_name = c("VMAC", "Awareness"))`), indicating that VMAC was positively associated with contingency awareness (Figure [2](#fig-2)[C]{.figletter}). Critically, the VMAC × Group interaction remained significant (`r report_coef(fit_list[["fit_aw"]], "SingletonVMAC:Taskc_vs_L", term_name = c("VMAC", "Group"), one.sided = T)`) after controlling for individual differences in awareness[^7]. Follow-up analyses controlling by awareness revealed that the color group still showed a significant VMAC effect (`r comps_latex2[1]`), while the location group did not (`r comps_latex2[2]`). Therefore, even though the VMAC effect was modulated by awareness, the interaction with selective attention cannot be explained away by individual differences in awareness alone.
+
+[^7]: As preregistered, given that both awareness measures showed convergent validity, we used contingency awareness as the covariate [as in @garre-frutos2025a]. However, as a (non-preregistered) robustness test, we showed that the results remain unchanged if we use contingency belief, or even if we multiply each awareness measure by its corresponding confidence rating (*ps* < `r round(ps[which.max(ps)], 3)`).
+
+# Meta-analysis
+
+To contextualize our findings and understand their practical implications, we performed a (non-preregistered) meta-analysis on previous studies employing the same design and settings. Specifically, the present task is an almost exact replication of @garre-frutos2024, and the present study derives from @garre-frutos2025a. We compared our results with the standardized effect sizes observed in those studies. Additionally, to get a sense of how effect sizes in this specific task design relate to the overall literature, we compared our effect sizes to the meta-analytical estimate from the study of @rusz2020, a meta-analysis aiming to characterize the size of reward-driven distraction across a wide range of experimental paradigms.
+
+:::{.no-count}
+
+```{r fig-3}
+#| label: fig-3
+#| fig-cap: Meta-analysis comparing the present results with prior literature
+#| fig-pos: "htbp"
+#| apa-note: "To illustrate the conceptual similarities between manipulating instructions and selective attention, blue indicates that participants received instructions about the feature-reward contingency or selectively attended to color (in the present study). In contrast, orange means that they did not receive instructions or selectively attended to the location (in the present study). The blue dashed line and the shaded segments indicate the meta-analytic estimate (Standardized Mean Difference) and the 95% CI of the effect of reward-driven distraction in the broader literature (0.35; Rusz et al., 2020). Squares indicate standardized effect sizes for individual studies, with size indicating precision and error bars indicating CI. Results from the meta-analysis showed that the effect size observed in the present study for the color group is perfectly consistent with effect sizes observed in the literature and prior studies."
+
+knitr::include_graphics("Output/plots/fig3.pdf")
+```
+
+:::
+
+Regarding the calculation of effect sizes, as in @rusz2020, we estimated the Standardized Mean Difference (*SMD*) for the VMAC effect as:
+
+$$
+\mathrm{SMD} \;=\; \frac{M_{\text{high}} - M_{\text{low}}}{\sqrt{SD_{\text{high}}^{2} + SD_{\text{low}}^{2} - 2r\,SD_{\text{high}}SD_{\text{low}}}}
+$$
+
+where $M$ and $SD$ are the condition means and standard deviations, and $r$ is the within-participant correlation. The sampling variance was estimated as:
+
+$$
+V_{\mathrm{SMD}} \;=\; \frac{1}{n} + \frac{\mathrm{SMD}^{2}}{2n}.
+$$
+
+We also estimated the same meta-analytic model using raw differences in RTs to facilitate interpretation of effect sizes within this specific task design. We estimated the sampling variance for raw RTs as:
+
+$$
+V_{\mathrm{Raw}} \;=\; \frac{SD_{\text{high}}^{2} + SD_{\text{low}}^{2} - 2r\,SD_{\text{high}}SD_{\text{low}}}{n}.
+$$
+
+We fitted a random-effects model using the *metafor* package [@metafor], including a moderator coding whether participants were encouraged to attend to the reward-predictive feature—via (or lack of) instructions in prior studies [@garre-frutos2024; @garre-frutos2025a] or via task demands (color vs. location reporting) in the present study. This allows us to meta-analytically assess whether manipulating selective attention using a concurrent task had a similar effect as manipulating instructions about the feature-reward contingency.
+
+Results from the meta-analysis (@fig-3) showed significant differences between the two sets of studies ($\beta = 0.282,\ z = 3.32,\ p < 0.001$) and no significant heterogeneity within them ($Q(4) = 1.974,\ p = 0.740$). Interestingly, the VMAC effect was significant only when participants were encouraged to attend to the reward-predictive feature—either via instructions or task demands ($\mathit{SMD}=0.36, \ 95\% \ \text{CI} [0.25, \ 0.47]$; $\Delta = 12.37, 95\% \ \text{CI} [8.89, \ 15.84]$)—and not when participants were uninstructed or attended to a reward-irrelevant feature ($\mathit{SMD}=0.08, \ 95\% \ \text{CI} [-0.05, \ 0.21]$; $\Delta = 2.19, 95\% \ \text{CI} [-1.30,5.67]$). Notably, the effect size observed for the color group ($\mathit{SMD}=0.36, \ 95\% \ \text{CI}[0.13, \ 0.59]$) is fully consistent with the broader literature’s meta-analytic estimate [$\mathit{SMD}=0.35, \ 95\% \  \text{CI} [0.26, \ 0.48]$\; @rusz2020], suggesting that only when participants selectively attend to the reward-predictive feature (or are instructed about the contingency) do they exhibit the typical effect size observed in the literature.
+
+# Discussion
+
+In this preregistered study, we investigated the role of selective attention in the learning process underlying VMAC. We manipulated between groups whether participants reported the color or the location of a distractor in a concurrent task, thereby forcing selective attention to a specific feature of the distractor—either reward-predictive or reward-irrelevant. Our results indicate that only participants tasked with reporting the reward-predictive feature showed a significant VMAC effect. Critically, the groups did not differ on any awareness measure, and the modulation of VMAC by task demands remained significant even after controlling for individual differences in awareness. Nevertheless, individual differences in awareness were positively associated with VMAC, suggesting that contingency awareness and selective attention make an independent contribution to the VMAC effect.
+
+Our findings are consistent with the general idea that selective attention modulates how we learn from our environment. Since the influential work of @rescorla1972_rw, most formal models of Pavlovian learning have incorporated this idea by assuming that attentional mechanisms can modulate learning [@mackintosh1975; @pearce1980; @lepelley2004; @dayan2000; @esber2011]. Several empirical findings align with the notion that attentional mechanisms based on predictability [@mackintosh1975] and uncertainty [@pearce1980] not only modulate the rate of learning but also reflect genuine changes in how we prioritize information [@lepelley2011; @beesley2015; for a review, see @lepelley2016]. Indeed, it is adaptive for an organism to prioritize information that is more likely to be relevant for predicting important outcomes [@watson2019_cobeha_prioritizing]. While VMAC may embody one such mechanism, learning what is relevant in a complex, multidimensional environment is likely to require selective attention to reduce its complexity [@niv2015; @wilson2012]. In fact, taxing attentional resources can impair Pavlovian learning [@dawson1970; @carrillo2000; @clark1998; @clark2001_psychsci; @li2025; see also @dawsonSchell1982b], and parallel patterns are found across disparate areas—including perceptual learning [@szpiro2015_ps; @donovan2015], instrumental learning [@mastropasqua2015], implicit sequence learning [@jiménez1999], and category learning [@kimn2010; @kruschke2005]—which often formalize the role of selective attention as a gating mechanism whereby attention constrains the input to learning [@roelfsema2005; @roelfsema2010; @rehder2005; @leong2017].
+
+Similarly, in the context of visual statistical learning, this pattern is also well established: learning is reliably observed only when spatial attention can be directed to spatial or contextual regularities [@jiang2001; @vadillo2020; @vadillo2024; @duncan2024; @golan2024]. Our results are consistent with this body of evidence, suggesting that feature-based selective attention to the relevant dimension is necessary to trigger the learning process underlying VMAC. This account might also explain qualitative differences in the roles of awareness and instructions when the reward-predictive feature is task-relevant [e.g., @anderson2011] versus task-irrelevant [e.g., @lepelley2015]. Specifically, when distractors are task-irrelevant during learning, awareness of the contingency would promote selective attention to the relevant distractor feature; whereas when that reward-predictive feature is task-relevant, the feature would be selectively attended due to task demands—potentially explaining why null findings regarding the role of awareness are particularly common when the reward-predictive feature is task-relevant [e.g., @anderson2011; @anderson2013]. As suggested by classical theories of automaticity, such as instance theory [@logan1988a; @logan2002; @jamieson2022], selective attention determines what is learned [@logan1994; @logan1996; @logan1999]. In this vein, given that our manipulation inherently required participants to actively track the distractor feature, representing the reward-predictive feature in working memory might have triggered or facilitated learning, as conditioning often depends on the availability of working-memory resources [@carter2003; @etemadi2023]. Thus, it is possible that holding the specific reward-predictive feature in working memory throughout the task contributed to the effective binding of feature and outcome [@jiménez1999; @hommel2004], which may be particularly relevant when both events do not co-occur in time [@clark1998; @greenwald2017].
+
+Interestingly, we also found that VMAC correlated positively with contingency awareness, independent of the selective-attention manipulation. Importantly, stating that selective attention and contingency awareness had independent effects on VMAC does not imply that they are independent of each other. As argued above, becoming aware of a contingency might encourage selective attention toward the reward-predictive feature, and selectively attending to that feature might also increase the likelihood of becoming aware of the contingency [@li2025]. Yet, whereas manipulating instructions produces clear differences in both learning and awareness in similar settings [@garre-frutos2025a], our manipulation of selective attention did not translate into the same significant differences in awareness. This suggests that while selective attention does have a causal role in VMAC, its impact on awareness may be more limited, at least in these settings. Notably, learning should depend not only on selective attention to the reward-predictive feature but also on reward feedback; thus, contingency awareness may reflect increased joint attention to both elements. Still, other mechanisms could account for the relationship between awareness and VMAC. For example, propositional knowledge might trigger Pavlovian learning through a different mechanism [@mitchell2009; @dayan2014; @pauli2019], or amplify VMAC for reasons unrelated to Pavlovian learning—such as strategically directing attention to the high-value distractor [@doyle2025; @gottlieb2014; @mahlberg2025] or by introducing a subtle speed–accuracy trade-off [@garre-frutos2025b]. Understanding the specific mechanism linking VMAC to awareness is relevant for assessing both the validity and the practical impact of this attentional bias in psychopathology [@anderson2021].
+
+In summary, our study shows that the relationship between awareness and VMAC can be mediated by selective attention to the reward-predictive feature. This finding underscores that VMAC requires selective attention to encode and represent the contingency between reward-predictive features and rewards.
+
+:::{.no-count}
+
+# Declaration Section
+
+## Funding
+
+This study was supported by [anonymized]
+
+## Conflict of interests
+
+The authors report that there are no competing interests to declare.
+
+## Ethical approval
+
+The study was approved by the Ethics Committee at [anonymized] and adhered to the Declaration of Helsinki.
+
+## Consent to participate
+
+Informed consent was obtained from all individual participants included in the study.
+
+## Consent for publication
+
+Not applicable.
+
+## Availability of data, materials, and code
+
+All materials, data, and scripts are publicly available at <https://osf.io/ezcrn/?view_only=cff010338a3a47398105fd73834aa30e> (anonymized link), and the preregistered methods and analyses (<https://osf.io/f3bm8/?view_only=682a873cda0a4356bcc570b4ec9b55fb>; anonymized link) were registered before data collection.
+
+## Open Practice Statement
+
+This experiment complies with the TOP guidelines. All materials, data, and scripts are publicly available at <https://osf.io/ezcrn/?view_only=cff010338a3a47398105fd73834aa30e> (anonymized link), and the preregistered methods and analyses (<https://osf.io/f3bm8/?view_only=682a873cda0a4356bcc570b4ec9b55fb>; anonymized link) were registered before data collection. We report how we determined our sample size, data exclusions, manipulations, and measures in the study.
+
+## Acknowledgements
+
+[anonymized]
+
+:::
+
+# References
+
+::: {#refs}
+:::
