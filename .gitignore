@@ -6,5 +6,5 @@
 .quarto
 
 # Ignore all manuscript builds
-vmac_selective_manuscript*
-**/vmac_selective_manuscript*
+**/vmac_selective_manuscript
+**/vmac_selective_manuscript.*
