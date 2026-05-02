@@ -305,3 +305,83 @@ get_least_non_significant <- function(model) {
 
   return(nonsig[selected])
 }
+
+# Functions to get average and SE for raw data in mixed designs. The source code is in: :
+summarySEwithin2 <- function (data = NULL,
+                              measurevar,
+                              betweenvars = NULL,
+                              withinvars = NULL,
+                              idvar = NULL,
+                              na.rm = FALSE,
+                              conf.interval = 0.95,
+                              .drop = TRUE)
+{
+  factorvars <- vapply(data[, c(betweenvars, withinvars), drop = FALSE], FUN = is.factor, FUN.VALUE = logical(1))
+  if (!all(factorvars)) {
+    nonfactorvars <- names(factorvars)[!factorvars]
+    message(
+      "Automatically converting the following non-factors to factors: ",
+      paste(nonfactorvars, collapse = ", ")
+    )
+    data[nonfactorvars] <- lapply(data[nonfactorvars], factor)
+  }
+  datac <- summarySE(
+    data,
+    measurevar,
+    groupvars = c(betweenvars, withinvars),
+    na.rm = na.rm,
+    conf.interval = conf.interval,
+    .drop = .drop
+  )
+  
+  datac$sd <- NULL
+  datac$se <- NULL
+  datac$ci <- NULL
+  ndata <- normDataWithin(data, idvar, measurevar, betweenvars, na.rm, .drop = .drop)
+  measurevar_n <- paste(measurevar, "_norm", sep = "")
+  ndatac <- summarySE(
+    ndata,
+    measurevar_n,
+    groupvars = c(betweenvars, withinvars),
+    na.rm = na.rm,
+    conf.interval = conf.interval,
+    .drop = .drop
+  )
+  nWithinGroups <- prod(vapply(ndatac[, withinvars, drop = FALSE], FUN = nlevels, FUN.VALUE = numeric(1)))
+  correctionFactor <- sqrt(nWithinGroups / (nWithinGroups - 1))
+  ndatac$sd <- ndatac$sd * correctionFactor
+  ndatac$se <- ndatac$se * correctionFactor
+  ndatac$ci <- ndatac$ci * correctionFactor
+  merge(datac, ndatac)
+}
+normDataWithin <- function(data = NULL,
+                           idvar,
+                           measurevar,
+                           betweenvars = NULL,
+                           na.rm = FALSE,
+                           .drop = TRUE) {
+  # Measure var on left, idvar + between vars on right of formula.
+  data.subjMean <- plyr::ddply(
+    data,
+    c(idvar, betweenvars),
+    .drop = .drop,
+    .fun = function(xx, col, na.rm) {
+      c(subjMean = mean(xx[, col], na.rm = na.rm))
+    },
+    measurevar,
+    na.rm
+  )
+  
+  # Put the subject means with original data
+  data <- merge(data, data.subjMean)
+  
+  # Get the normalized data in a new column
+  measureNormedVar <- paste(measurevar, "_norm", sep = "")
+  data[, measureNormedVar] <- data[, measurevar] - data[, "subjMean"] +
+    mean(data[, measurevar], na.rm = na.rm)
+  
+  # Remove this subject mean column
+  data$subjMean <- NULL
+  
+  return(data)
+}

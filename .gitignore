@@ -1,10 +1,43 @@
-.Rproj.user
+.Rproj.user/
 .Rhistory
+.RData
 .Rdata
+.Ruserdata
 .httr-oauth
 .DS_Store
-.quarto
+.localappdata/
+.quarto/
+**/.quarto/
+**/*.quarto_ipynb
 
-# Ignore all manuscript builds
-**/vmac_selective_manuscript
-**/vmac_selective_manuscript.*
+# Quarto / manuscript build artifacts
+Output/manuscript/*
+!Output/manuscript/*.pdf
+Manuscript/Output/
+Manuscript/*.docx
+Manuscript/*.pdf
+Manuscript/*.tex
+Manuscript/*_files/
+Manuscript/*_cache/
+Manuscript/.quarto/
+
+# Generic build artifacts
+*.log
+*.aux
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Preregistration render cache
+pre_registation/*_cache/
+pre_registation/*_files/
+
+# Keep manuscript sources
+!Manuscript/*.qmd
+!Manuscript/*.bib
+!Manuscript/filters/**
+!Manuscript/_extensions/**

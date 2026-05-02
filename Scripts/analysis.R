@@ -12,9 +12,8 @@ mutate <- dplyr::mutate
 
 source(here::here("Scripts/functions.R")) # Load data and all relevant functions
 
-
 # Load raw data ----
-raw <- read.csv("Input/data.csv")
+raw <- read.csv(here("Input/data.csv"))
 
 # Applying exclusion criteria (see: https://osf.io/f3bm8):
 # Excluding participants with numerically low accuracy in the visual search task (< 0.7)
@@ -253,6 +252,11 @@ awareness <- raw %>% filter(Phase == "Awareness1" |
             .by = c(ID, Phase, task)) %>%
   tidyr::pivot_wider(names_from = "Phase", values_from = "response")
 
+# Load qualitative awareness coding for exploratory analyses
+classified_d <- read.csv(here::here("Input/awareness_quali.csv")) %>%
+  filter(!ID %in% c(exclusions)) %>%
+  left_join(awareness[, c("ID", "Awareness2")], by = "ID") %>%
+  dplyr::rename("Awareness" = "Awareness2")
 
 awareness$Task <- factor(awareness$task, levels = c("C", "L"))
 contrasts(awareness$Task) <- contr.sum(2)
@@ -528,4 +532,126 @@ if(!file.exists("Output/plots/fig2.png")) {
   ggsave(plot=fig2, filename=here::here("Output/plots/fig2.png"),
          units = "cm", height = 14, width = 17)
 }
+
+# Non-preregistered and exploratory analyses ----
+
+# Change the VMAC effect with the time on the task? 
+HcRep <- hypr(
+  VMAC = High ~ Low,
+  AC = Low ~ Absent,
+  levels = c("High", "Low", "Absent")
+) # Contrast for VMAC and AC effects
+
+# Filter data
+d <- raw %>%
+  filter(Phase == "Rewarded", rt > 150, rt < 1800, task == "L",
+         correct == 1, !ID %in% c(exclusions), Block_num > 2)
+
+# Set contrasts for model fitting
+d$Singleton <- factor(d$Singleton, levels = c("High", "Low", "Absent"))
+d$log_RT <- log(d$rt)
+d$Block <- scale(log(d$Block_num))
+contrasts(d$Singleton) <- contr.hypothesis(HcRep)
+
+fit <-
+  lmer(
+    log_RT ~ Singleton * Block + (Singleton + Block | ID),
+    control = lmerControl(optimizer = 'bobyqa'),
+    data = d
+  ) # Maximal model
+
+# Save for later
+fit_list[["RTs_VST_late_L"]] <- fit
+
+summary(fit)
+
+d %>%
+  mutate(Block = Epoch) %>%
+  summarise(rt = mean(rt),
+            .by = c(ID, Block, Singleton)) %>%
+  #spread(Singleton, rt) %>%
+  #mutate(VMAC = High - Low) %>%
+  summarySEwithin2(data=., "rt", withinvars = c("Block", "Singleton"),
+                  idvar = "ID") %>%
+  ggplot(aes(Block, rt, group = Singleton, color = Singleton)) +
+  geom_point(position = position_dodge(.3)) +
+  geom_line(position = position_dodge(.3)) +
+  geom_errorbar(aes(ymin = rt - ci, ymax = rt + ci), width = 0,
+                position = position_dodge(.3)) +
+  theme_Publication()
+
+fit <-
+  lmer(
+    log_RT ~ Singleton + (1 | ID),
+    control = lmerControl(optimizer = 'bobyqa'),
+    data = d %>% filter(Epoch == 6)
+  ) # Maximal model
+
+# Save for later
+fit_list[["RTs_VST_lastblock_L"]] <- fit
+
+summary(fit)
+  
+  
+# Categorical analysis of contingency awareness using open-ended data
+
+d <- raw %>%
+  filter(Phase == "Rewarded", rt > 150, rt < 1800,
+         correct == 1, !ID %in% c(exclusions), Block_num > 2, Singleton != "Absent") %>%
+  left_join(classified_d[, c("ID", "aware_binary", "category")], by = "ID")
+
+# Set contrasts for model fitting
+d$Singleton <- factor(d$Singleton, levels = c("High", "Low"))
+contrasts(d$Singleton) <- contr.sum(2)/2
+colnames(contrasts(d$Singleton)) <- c("VMAC")
+d$Task <- factor(d$task, levels = c("C", "L"))
+contrasts(d$Task) <- contr.sum(2)/2
+colnames(contrasts(d$Task)) <- c("c_vs_L")
+d$Category <- factor(d$category, levels = c("correct", "none"))
+contrasts(d$Category) <- contr.sum(2)/2
+colnames(contrasts(d$Category)) <- c("c_vs_n")
+d$log_RT <- log(d$rt)
+
+fit <-
+  lmer(
+    log_RT ~ Singleton * Task * Category + (1 | ID),
+    control = lmerControl(optimizer = 'bobyqa'),
+    data = d
+  ) # Maximal model
+
+summary(fit)
+
+avg_comparisons(fit, 
+                comparison = function(hi, lo) exp(lo + (sigma(fit)^2)/2) - exp(hi + (sigma(fit)^2)/2),
+                variables = "Singleton",
+                by = c("Category", "Task")
+)
+
+avg_comparisons(fit, 
+                comparison = function(hi, lo) exp(lo + (sigma(fit)^2)/2) - exp(hi + (sigma(fit)^2)/2),
+                variables = "Singleton",
+                by = c("Category")
+)
+
+avg_comparisons(fit, 
+                comparison = function(hi, lo) exp(lo + (sigma(fit)^2)/2) - exp(hi + (sigma(fit)^2)/2),
+                variables = "Singleton",
+                by = c("Task")
+)
+
+# Difference in the probability of being classified as aware: 
+fit_logistic <- glm(aware_binary~task, data = classified_d) 
+
+summary(fit_logistic) # No significant differences
+
+# Probabilities as a function of task
+avg_predictions(
+  fit_logistic,
+  by = "task"
+)
+
+# Are there difference in contingency awareness as a function of awareness status and task? 
+avg_predictions(betareg(Awareness~category*task, data = classified_d),
+                by = c("task", "category"),
+                hypothesis = 0.5) # Testing against 0.5 (no contingency awareness)
 

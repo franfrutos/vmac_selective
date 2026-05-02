@@ -1,0 +1,466 @@
+---
+title: "The role of selective attention in value-modulated attentional capture"
+shorttitle: "SUPPLEMENTARY MATERIALS"
+supplementary-title-prefix: "Supplementary Material to accompany"
+author:
+  - name: Francisco Garre-Frutos
+    orcid: 0000-0001-5052-066X
+    email: fgfrutos@ugr.es
+    affiliation:
+      - ref: 1
+    corresponding: true
+  - name: Miguel A. Vadillo
+    orcid: 0000-0001-8421-816X
+    affiliation:
+      - ref: 2
+  - name: Jan Theeuwes
+    orcid: 0000-0002-5849-7721
+    affiliation:
+      - ref: 3
+      - ref: 4
+  - name: Dirk Van Moorselaar
+    orcid: 0000-0002-0491-1317
+    affiliation:
+      - ref: 5
+  - name: Juan Lupiáñez
+    orcid: 0000-0001-6157-9894
+    affiliation:
+      - ref: 1
+affiliations:
+  - id: 1
+    name: Department of Experimental Psychology and Mind, Brain, and Behavior Research Center (CIMCYC), University of Granada, Granada, Spain
+  - id: 2
+    name: Department of Basic Psychology, Autonomous University of Madrid, Madrid, Spain
+  - id: 3
+    name: Institute Brain and Behavior Amsterdam, Department of Experimental and Applied Psychology, Vrije Universiteit Amsterdam, Amsterdam, the Netherlands
+  - id: 4
+    name: William James Center for Research, ISPA-Instituto Universitario, Lisbon, Portugal
+  - id: 5
+    name: Faculty of Social and Behavioral Sciences, Experimental Psychology, Helmholtz Institute, Utrecht University, Utrecht, the Netherlands
+mask: false
+numbered-lines: false
+suppress-title-page: false
+suppress-author-note: true
+suppress-corresponding-paragraph: true
+suppress-orcid: true
+suppress-abstract: true
+suppress-keywords: true
+suppress-impact-statement: true
+suppress-title-introduction: true
+floatsintext: true
+link-citations: true
+draft-date: false
+bibliography: references.bib
+lang: en
+language:
+  citation-last-author-separator: "and"
+  citation-masked-author: "Masked Citation"
+  citation-masked-date: "n.d."
+  citation-masked-title: "Masked Title"
+  email: "Email"
+  title-block-author-note: "Author Note"
+  title-block-correspondence-note: "Correspondence concerning this article should be addressed to"
+  title-block-role-introduction: "Author roles were classified using the Contributor Role Taxonomy (CRediT; [credit.niso.org](https://credit.niso.org)) as follows:"
+format:
+  apaquarto-docx:
+    toc: false
+    convert-graphics: true
+    dpi: 300
+    filters:
+      - at: pre-ast
+        path: filters/supplement-title.lua
+      - filters/review-blue.lua
+      - filters/fig.lua
+  apaquarto-pdf:
+    citeproc: false
+    filters:
+      - at: pre-quarto
+        path: ../_extensions/andrewheiss/wordcount/citeproc.lua
+      - at: pre-quarto
+        path: ../_extensions/andrewheiss/wordcount/wordcount.lua
+      - at: pre-ast
+        path: filters/supplement-title.lua
+      - filters/review-blue.lua
+      - filters/fig.lua
+    documentmode: man
+    keep-tex: true
+---
+
+```{r exploratory-awareness-categorical-setup}
+#| include: false
+
+local_user_lib <- file.path(
+  Sys.getenv("LOCALAPPDATA"),
+  "R",
+  "win-library",
+  paste(R.version$major, strsplit(R.version$minor, "\\.")[[1]][1], sep = ".")
+)
+
+if (dir.exists(local_user_lib)) {
+  .libPaths(c(local_user_lib, .libPaths()))
+}
+
+suppressPackageStartupMessages({
+  library(dplyr)
+  library(tidyr)
+  library(purrr)
+  library(readr)
+  library(betareg)
+  library(marginaleffects)
+  library(lmerTest)
+  library(here)
+})
+
+here::i_am("Manuscript/supplementary_material_vmac_selective.qmd")
+
+transform_data <- function(y, epsilon = 0.5, n) {
+  (y * (n - 1) + epsilon) / n
+}
+
+fmt_num <- function(x, digits = 2) {
+  format(round(x, digits), nsmall = digits, trim = TRUE)
+}
+
+fmt_p <- function(p, digits = 3) {
+  if (p < .001) {
+    "p < 0.001"
+  } else {
+    paste0("p = ", format(round(p, digits), nsmall = digits, trim = TRUE))
+  }
+}
+
+fmt_ci <- function(lo, hi, digits = 2) {
+  paste0("[", fmt_num(lo, digits), ", ", fmt_num(hi, digits), "]")
+}
+
+format_interaction <- function(vars) {
+  formatted <- sprintf("\\mathrm{%s}", vars)
+  if (length(formatted) == 1) {
+    formatted
+  } else {
+    paste(formatted, collapse = " \\times ")
+  }
+}
+
+report_coef_latex <- function(model, term, term_name, one.sided = FALSE, digits = 3) {
+  model_sum <- summary(model)
+
+  if (!term %in% rownames(model_sum$coefficients)) {
+    stop(sprintf("The term '%s' cannot be found in the model.", term))
+  }
+
+  coef_est <- model_sum$coefficients[term, "Estimate"]
+  p_colname <- grep("^Pr\\(>\\|.*\\)$", colnames(model_sum$coefficients), value = TRUE)
+  p_value <- model_sum$coefficients[term, p_colname]
+  p_output <- if (p_value < .001) {
+    "p < 0.001"
+  } else {
+    paste0("p = ", format(round(p_value, digits), nsmall = digits))
+  }
+
+  if ("t value" %in% colnames(model_sum$coefficients)) {
+    test_stat <- model_sum$coefficients[term, "t value"]
+    df_value <- model_sum$coefficients[term, "df"]
+
+    if (one.sided) {
+      p_value <- pt(test_stat, df_value, lower.tail = FALSE)
+      p_output <- if (p_value < .001) {
+        "p < 0.001"
+      } else {
+        paste0("p = ", format(round(p_value, digits), nsmall = digits))
+      }
+    }
+
+    sprintf(
+      "$\\beta_{%s} = %s, \\; t_{%s} = %s, \\; %s$",
+      format_interaction(term_name),
+      format(round(coef_est, digits), nsmall = digits),
+      format(round(df_value, 0), trim = TRUE),
+      format(round(test_stat, 2), nsmall = 2),
+      p_output
+    )
+  } else if ("z value" %in% colnames(model_sum$coefficients)) {
+    test_stat <- model_sum$coefficients[term, "z value"]
+
+    sprintf(
+      "$\\beta_{%s} = %s, \\; z = %s, \\; %s$",
+      format_interaction(term_name),
+      format(round(coef_est, digits), nsmall = digits),
+      format(round(test_stat, 2), nsmall = 2),
+      p_output
+    )
+  } else {
+    stop("There is no t or z value column in the model.")
+  }
+}
+
+report_marginal_latex <- function(x, label, digits = 3, statistic = "z", units = NULL) {
+  estimate <- format(round(x$estimate, digits), nsmall = digits)
+  conf_low <- format(round(x$conf.low, digits), nsmall = digits)
+  conf_high <- format(round(x$conf.high, digits), nsmall = digits)
+  stat_value <- format(round(x$statistic, 2), nsmall = 2)
+  p_output <- if (x$p.value < .001) {
+    "p < 0.001"
+  } else {
+    paste0("p = ", format(round(x$p.value, 3), nsmall = 3))
+  }
+  units_output <- if (is.null(units)) "" else units
+
+  sprintf(
+    "$M_{\\mathrm{%s}} = %s%s,\\;95\\%%\\,\\mathrm{CI}[%s, %s],\\; %s = %s, \\; %s$",
+    label,
+    estimate,
+    units_output,
+    conf_low,
+    conf_high,
+    statistic,
+    stat_value,
+    p_output
+  )
+}
+
+report_mean_ci_latex <- function(x, label, digits = 3) {
+  sprintf(
+    "$M_{\\mathrm{%s}} = %s,\\;95\\%%\\,\\mathrm{CI}[%s, %s]$",
+    label,
+    format(round(x$estimate, digits), nsmall = digits),
+    format(round(x$conf.low, digits), nsmall = digits),
+    format(round(x$conf.high, digits), nsmall = digits)
+  )
+}
+
+raw <- read.csv(here::here("Input/data.csv"))
+
+acc_ex <-
+  raw %>%
+  filter(Phase == "Rewarded") %>%
+  summarise(ACC = mean(correct), .by = c(task, ID)) %>%
+  filter(ACC < .7) %>%
+  pull(ID)
+
+report_ex <-
+  raw %>%
+  filter(Phase %in% c("Rewarded", "Report")) %>%
+  group_by(ID) %>%
+  mutate(tmp = 1:n()) %>%
+  ungroup() %>%
+  filter(tmp > 30) %>%
+  select(-tmp) %>%
+  filter(Phase == "Report") %>%
+  summarise(correct = sum(correct), n = n(), .by = c(task, ID)) %>%
+  mutate(
+    ACC = correct / n,
+    p_value = map2_dbl(correct, n, ~ binom.test(.x, .y)$p.value),
+    cut_off = mean(ACC) - sd(ACC) * 2.5
+  ) %>%
+  filter(p_value > .05 | cut_off > ACC) %>%
+  pull(ID)
+
+rt_ex <-
+  raw %>%
+  filter(Phase == "Rewarded", correct == 1, rt > 150, rt < 1800) %>%
+  summarise(rt = mean(rt), .by = c(task, ID)) %>%
+  mutate(
+    cut_off_low = mean(rt) - sd(rt) * 3,
+    cut_off_high = mean(rt) + sd(rt) * 3
+  ) %>%
+  filter(cut_off_high < rt | cut_off_low > rt) %>%
+  pull(ID)
+
+exclusions <- unique(c(report_ex, acc_ex, rt_ex))
+
+awareness <-
+  raw %>%
+  filter(
+    Phase %in% c("Awareness1", "Confidence1", "Confidence2", "Awareness2"),
+    !ID %in% c(exclusions)
+  ) %>%
+  select(ID, task, Phase, response) %>%
+  mutate(
+    response = as.numeric(response) / 100,
+    n = n(),
+    response = transform_data(response, n = n)
+  ) %>%
+  summarise(response = max(response), n = max(n), .by = c(ID, Phase, task)) %>%
+  pivot_wider(names_from = "Phase", values_from = "response")
+
+classified_d <-
+  {
+    awareness_quali_path <- here::here("Input/awareness_quali.csv")
+    awareness_quali_header <- readLines(awareness_quali_path, n = 1, warn = FALSE)
+    awareness_quali_delim <-
+      if (stringr::str_count(awareness_quali_header, ";") >
+        stringr::str_count(awareness_quali_header, ",")) ";" else ","
+
+    read_delim(
+      awareness_quali_path,
+      delim = awareness_quali_delim,
+      show_col_types = FALSE
+    ) %>%
+      select(-any_of("...1"))
+  } %>%
+  filter(!ID %in% c(exclusions)) %>%
+  left_join(awareness %>% select(ID, Awareness2), by = "ID") %>%
+  rename(Awareness = Awareness2)
+
+aware_n <- sum(classified_d$aware_binary == 1)
+unaware_n <- sum(classified_d$aware_binary == 0)
+aware_color_n <- sum(classified_d$task == "C" & classified_d$aware_binary == 1)
+aware_location_n <- sum(classified_d$task == "L" & classified_d$aware_binary == 1)
+unaware_color_n <- sum(classified_d$task == "C" & classified_d$aware_binary == 0)
+unaware_location_n <- sum(classified_d$task == "L" & classified_d$aware_binary == 0)
+
+d_cat <-
+  raw %>%
+  filter(
+    Phase == "Rewarded",
+    rt > 150,
+    rt < 1800,
+    correct == 1,
+    !ID %in% c(exclusions),
+    Block_num > 2,
+    Singleton != "Absent"
+  ) %>%
+  left_join(classified_d[, c("ID", "aware_binary", "category")], by = "ID")
+
+d_cat$Singleton <- factor(d_cat$Singleton, levels = c("High", "Low"))
+contrasts(d_cat$Singleton) <- contr.sum(2) / 2
+colnames(contrasts(d_cat$Singleton)) <- c("VMAC")
+d_cat$Task <- factor(d_cat$task, levels = c("C", "L"))
+contrasts(d_cat$Task) <- contr.sum(2) / 2
+colnames(contrasts(d_cat$Task)) <- c("c_vs_L")
+d_cat$Category <- factor(d_cat$category, levels = c("correct", "none"))
+contrasts(d_cat$Category) <- contr.sum(2) / 2
+colnames(contrasts(d_cat$Category)) <- c("c_vs_n")
+d_cat$log_RT <- log(d_cat$rt)
+
+fit_cat_awareness <-
+  lmer(
+    log_RT ~ Singleton * Task * Category + (1 | ID),
+    control = lmerControl(optimizer = "bobyqa"),
+    data = d_cat
+  )
+
+fit_awareness_logistic <- glm(aware_binary ~ task, data = classified_d, family = binomial())
+
+awareness_validation <-
+  avg_predictions(
+    betareg(Awareness ~ category * task, data = classified_d),
+    by = c("task", "category"),
+    hypothesis = 0.5
+  )
+
+vmac_cat_task <-
+  avg_comparisons(
+    fit_cat_awareness,
+    comparison = function(hi, lo) exp(lo + (sigma(fit_cat_awareness)^2) / 2) -
+      exp(hi + (sigma(fit_cat_awareness)^2) / 2),
+    variables = "Singleton",
+    by = c("Category", "Task")
+  )
+
+coef_cat <- as.data.frame(summary(fit_cat_awareness)$coefficients)
+coef_cat$term <- rownames(coef_cat)
+coef_cat <- coef_cat %>% relocate(term)
+
+coef_task <- coef_cat %>% filter(term == "SingletonVMAC:Taskc_vs_L")
+coef_category <- coef_cat %>% filter(term == "SingletonVMAC:Categoryc_vs_n")
+coef_threeway <- coef_cat %>% filter(term == "SingletonVMAC:Taskc_vs_L:Categoryc_vs_n")
+coef_logistic <- as.data.frame(summary(fit_awareness_logistic)$coefficients)
+coef_logistic$term <- rownames(coef_logistic)
+coef_logistic <- coef_logistic %>% relocate(term)
+coef_logistic_task <- coef_logistic %>% filter(term == "taskL")
+
+aware_prob <- avg_predictions(fit_awareness_logistic, by = "task")
+aware_prob_color <- aware_prob$estimate[aware_prob$task == "C"]
+aware_prob_location <- aware_prob$estimate[aware_prob$task == "L"]
+aware_prob_color_row <- aware_prob %>% filter(task == "C")
+aware_prob_location_row <- aware_prob %>% filter(task == "L")
+
+logistic_p <- coef_logistic_task[["Pr(>|z|)"]]
+logistic_z <- coef_logistic_task[["z value"]]
+task_t <- coef_task[["t value"]]
+task_p <- coef_task[["Pr(>|t|)"]]
+category_t <- coef_category[["t value"]]
+category_p <- coef_category[["Pr(>|t|)"]]
+threeway_t <- coef_threeway[["t value"]]
+threeway_p <- coef_threeway[["Pr(>|t|)"]]
+
+val_color_none <- awareness_validation %>% filter(task == "C", category == "none")
+val_color_correct <- awareness_validation %>% filter(task == "C", category == "correct")
+val_location_none <- awareness_validation %>% filter(task == "L", category == "none")
+val_location_correct <- awareness_validation %>% filter(task == "L", category == "correct")
+
+vmac_correct_color <- vmac_cat_task %>% filter(Category == "correct", Task == "C")
+vmac_correct_location <- vmac_cat_task %>% filter(Category == "correct", Task == "L")
+vmac_none_color <- vmac_cat_task %>% filter(Category == "none", Task == "C")
+vmac_none_location <- vmac_cat_task %>% filter(Category == "none", Task == "L")
+
+aware_validation_latex <- list(
+  color_correct = report_marginal_latex(val_color_correct, "Awareness", digits = 3),
+  location_correct = report_marginal_latex(val_location_correct, "Awareness", digits = 3),
+  color_none = report_marginal_latex(val_color_none, "Awareness", digits = 3),
+  location_none = report_marginal_latex(val_location_none, "Awareness", digits = 3)
+)
+
+aware_prob_latex <- list(
+  color = report_mean_ci_latex(aware_prob_color_row, "Aware", digits = 3),
+  location = report_mean_ci_latex(aware_prob_location_row, "Aware", digits = 3)
+)
+
+awareness_coef_latex <- list(
+  group = report_coef_latex(fit_awareness_logistic, "taskL", term_name = c("Group")),
+  task = report_coef_latex(fit_cat_awareness, "SingletonVMAC:Taskc_vs_L", term_name = c("VMAC", "Group")),
+  category = report_coef_latex(fit_cat_awareness, "SingletonVMAC:Categoryc_vs_n", term_name = c("VMAC", "Awareness Category")),
+  threeway = report_coef_latex(fit_cat_awareness, "SingletonVMAC:Taskc_vs_L:Categoryc_vs_n", term_name = c("VMAC", "Group", "Awareness Category"))
+)
+
+vmac_cat_latex <- list(
+  correct_color = report_marginal_latex(vmac_correct_color, "VMAC", digits = 2, units = "\\,\\mathrm{ms}"),
+  none_color = report_marginal_latex(vmac_none_color, "VMAC", digits = 2, units = "\\,\\mathrm{ms}"),
+  correct_location = report_marginal_latex(vmac_correct_location, "VMAC", digits = 2, units = "\\,\\mathrm{ms}"),
+  none_location = report_marginal_latex(vmac_none_location, "VMAC", digits = 2, units = "\\,\\mathrm{ms}")
+)
+```
+
+## Meta-analysis for the raw VMAC effect
+
+Here, we present the graphical result for the meta-analysis presented in the *Meta-analysis* section of the main text, using the raw differences in reaction times for the high- vs. low-value distractor, and the sampling variance formula described in the same section.
+
+:::{.no-count}
+
+```{r fig-s1}
+#| label: fig-s1
+#| fig-cap: Meta-analysis for the raw VMAC effect
+#| fig-pos: "htbp"
+#| apa-note: "To illustrate the conceptual similarities between manipulating instructions and selective attention, blue indicates that participants received instructions about the feature-reward contingency or selectively attended to color (in the present study). In contrast, orange means that they did not receive instructions or selectively attended to the location (in the present study). Squares indicate the raw VMAC effect for individual studies, with size indicating precision and error bars indicating the 95% CI."
+
+knitr::include_graphics(
+  normalizePath(
+    here::here(
+      if (
+        knitr::is_latex_output() ||
+          (!is.null(knitr::opts_knit$get("rmarkdown.pandoc.to")) &&
+            grepl("latex|pdf", knitr::opts_knit$get("rmarkdown.pandoc.to")))
+      ) {
+        "Output/plots/figS1.pdf"
+      } else {
+        "Output/plots/figS1.png"
+      }
+    ),
+    winslash = "/",
+    mustWork = TRUE
+  ),
+  rel_path = FALSE
+)
+```
+
+:::
+
+## [Categorical analysis of contingency awareness]{.blue}
+
+[To complement the preregistered continuous awareness analyses reported in the main text, we conducted an additional exploratory analysis based on the open-ended report collected at the end of the experiment. This report asked participants to describe, in their own words, any pattern they noticed in the relation between singleton distractor color and the occurrence of bonus trials. For the present analysis, participants were classified as *aware* only when they explicitly described the correct color-reward contingency, that is, when they clearly indicated that the high-value distractor color was associated with bonus trials. Participants were classified as *unaware* when they did not describe any color-reward relationship in their report. After applying the preregistered exclusion criteria, this qualitative coding yielded `r aware_n` aware participants (`r aware_color_n` in the color group and `r aware_location_n` in the location group) and `r unaware_n` unaware participants (`r unaware_color_n` in the color group and `r unaware_location_n` in the location group).]{.blue}
+
+[This qualitative classification was consistent with the continuous contingency-awareness measure reported in the main text. Participants classified as aware gave contingency-awareness estimates that were clearly above chance in both the color group (`r aware_validation_latex$color_correct`) and the location group (`r aware_validation_latex$location_correct`). In contrast, participants classified as unaware performed approximately at chance in both groups (color: `r aware_validation_latex$color_none`; location: `r aware_validation_latex$location_none`). Likewise, the probability of being classified as aware did not differ significantly between selective-attention groups (`r awareness_coef_latex$group`), with predicted probabilities of `r aware_prob_latex$color` in the color group and `r aware_prob_latex$location` in the location group.]{.blue}
+
+[We then repeated the RT analysis on high- and low-value distractor trials, including awareness category as an additional between-participants factor. This analysis revealed a significant VMAC by group interaction (`r awareness_coef_latex$task`) and a significant VMAC by awareness-category interaction (`r awareness_coef_latex$category`), but no three-way interaction (`r awareness_coef_latex$threeway`). Follow-up comparisons showed that the color group displayed a significant VMAC effect both among aware participants (`r vmac_cat_latex$correct_color`) and among unaware participants (`r vmac_cat_latex$none_color`). In contrast, the location group did not show a significant VMAC effect either among aware participants (`r vmac_cat_latex$correct_location`) or among unaware participants (`r vmac_cat_latex$none_location`). Overall, this exploratory analysis converges with the preregistered analysis.]{.blue}
